@@ -9,12 +9,12 @@ import re
 # logger = xbmc.log
 
 settings_path = xbmcvfs.translatePath(
-    "special://profile/addon_data/script.fentastic.helper/"
+    "special://profile/addon_data/script.nimbus.helper/"
 )
 ratings_database_path = xbmcvfs.translatePath(
-    "special://profile/addon_data/script.fentastic.helper/ratings_cache.db"
+    "special://profile/addon_data/script.nimbus.helper/ratings_cache.db"
 )
-IMAGE_PATH = "special://home/addons/skin.fentastic/resources/rating_images/"
+IMAGE_PATH = "special://home/addons/skin.nimbus/resources/rating_images/"
 
 
 def make_session(url="https://"):
@@ -70,7 +70,7 @@ class MDbListAPI:
         self.dbcur.execute("DELETE FROM ratings")
         self.dbcon.commit()
         dialog = xbmcgui.Dialog()
-        dialog.ok("FENtastic", "All ratings have been cleared from the database.")
+        dialog.ok("Nimbus", "All ratings have been cleared from the database.")
 
     def get_cached_info(self, imdb_id):
         self.dbcur.execute(
@@ -185,7 +185,7 @@ def play_trailer_in_window(play_url):
 
 
 def play_trailer():
-    trailer_url = xbmc.getInfoLabel("Window.Property(fentastic.trailer)")
+    trailer_url = xbmc.getInfoLabel("Window.Property(nimbus.trailer)")
     if trailer_url:
         match = re.search(r"v=([a-zA-Z0-9_-]+)", trailer_url)
         if match:

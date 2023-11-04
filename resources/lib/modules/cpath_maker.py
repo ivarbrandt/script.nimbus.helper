@@ -13,10 +13,10 @@ Listitem = xbmcgui.ListItem
 max_widgets = 10
 
 settings_path = xbmcvfs.translatePath(
-    "special://profile/addon_data/script.fentastic.helper/"
+    "special://profile/addon_data/script.nimbus.helper/"
 )
 database_path = xbmcvfs.translatePath(
-    "special://profile/addon_data/script.fentastic.helper/cpath_cache.db"
+    "special://profile/addon_data/script.nimbus.helper/cpath_cache.db"
 )
 (
     movies_widgets_xml,
@@ -25,11 +25,11 @@ database_path = xbmcvfs.translatePath(
     custom2_widgets_xml,
     custom3_widgets_xml,
 ) = (
-    "script-fentastic-widget_movies",
-    "script-fentastic-widget_tvshows",
-    "script-fentastic-widget_custom1",
-    "script-fentastic-widget_custom2",
-    "script-fentastic-widget_custom3",
+    "script-nimbus-widget_movies",
+    "script-nimbus-widget_tvshows",
+    "script-nimbus-widget_custom1",
+    "script-nimbus-widget_custom2",
+    "script-nimbus-widget_custom3",
 )
 (
     movies_main_menu_xml,
@@ -38,11 +38,11 @@ database_path = xbmcvfs.translatePath(
     custom2_main_menu_xml,
     custom3_main_menu_xml,
 ) = (
-    "script-fentastic-main_menu_movies",
-    "script-fentastic-main_menu_tvshows",
-    "script-fentastic-main_menu_custom1",
-    "script-fentastic-main_menu_custom2",
-    "script-fentastic-main_menu_custom3",
+    "script-nimbus-main_menu_movies",
+    "script-nimbus-main_menu_tvshows",
+    "script-nimbus-main_menu_custom1",
+    "script-nimbus-main_menu_custom2",
+    "script-nimbus-main_menu_custom3",
 )
 default_xmls = {
     "movie.widget": (movies_widgets_xml, xmls.default_widget, "MovieWidgets"),
@@ -350,7 +350,7 @@ class CPaths:
         action_choice = self.manage_action(cpath_setting, context)
         if action_choice == "clear_path":
             self.make_default_xml()
-            dialog.ok("FENtastic", "Path cleared")
+            dialog.ok("Nimbus", "Path cleared")
             return None
         if action_choice is None:
             return None
@@ -485,7 +485,7 @@ class CPaths:
             parts = cpath_setting.split(".")
             current_order = int(parts[-1])
             if len(parts) < 3 or not parts[-1].isdigit():
-                dialog.ok("FENtastic", "Cannot move this widget")
+                dialog.ok("Nimbus", "Cannot move this widget")
                 return None
             if current_order == 1 and action == "move_up":
                 new_order = max_widgets
@@ -512,7 +512,7 @@ class CPaths:
                         cpath_setting, cpath_path, cpath_header, "", ""
                     )
                     self.make_main_menu_xml(self.fetch_current_cpaths())
-                    dialog.ok("FENtastic", "Main menu remade")
+                    dialog.ok("Nimbus", "Main menu remade")
         elif action == "rename_path":
             result = self.fetch_one_cpath(cpath_setting)
             if not result:
@@ -577,7 +577,7 @@ class CPaths:
             self.remove_cpath_from_database(cpath_setting)
             if context == "main_menu":
                 self.make_default_xml()
-                dialog.ok("FENtastic", "Path cleared")
+                dialog.ok("Nimbus", "Path cleared")
         return None
 
     def swap_widgets(self, parts, current_order, new_order):
@@ -631,12 +631,12 @@ class CPaths:
             )
 
     def reload_skin(self):
-        if window.getProperty("fentastic.clear_path_refresh") == "true":
+        if window.getProperty("nimbus.clear_path_refresh") == "true":
             return
-        window.setProperty("fentastic.clear_path_refresh", "true")
+        window.setProperty("nimbus.clear_path_refresh", "true")
         while xbmcgui.getCurrentWindowId() == 10035:
             xbmc.sleep(500)
-        window.setProperty("fentastic.clear_path_refresh", "")
+        window.setProperty("nimbus.clear_path_refresh", "")
         xbmc.sleep(200)
         xbmc.executebuiltin("ReloadSkin()")
         starting_widgets()
@@ -712,12 +712,12 @@ def remake_all_cpaths(silent=False):
     ):
         CPaths(item).remake_main_menus()
     if not silent:
-        xbmcgui.Dialog().ok("FENtastic", "Menus and widgets remade")
+        xbmcgui.Dialog().ok("Nimbus", "Menus and widgets remade")
 
 
 def starting_widgets():
     window = xbmcgui.Window(10000)
-    window.setProperty("fentastic.starting_widgets", "finished")
+    window.setProperty("nimbus.starting_widgets", "finished")
     for item in (
         "movie.widget",
         "tvshow.widget",
@@ -758,8 +758,8 @@ def starting_widgets():
                 if not first_item:
                     continue
                 cpath_label, cpath_path = first_item["label"], first_item["file"]
-                window.setProperty("fentastic.%s.label" % list_id, cpath_label)
-                window.setProperty("fentastic.%s.path" % list_id, cpath_path)
+                window.setProperty("nimbus.%s.label" % list_id, cpath_label)
+                window.setProperty("nimbus.%s.path" % list_id, cpath_path)
         except:
             pass
     try:

@@ -37,7 +37,7 @@ def widget_monitor(list_id):
         monitor.waitForAbort(0.25)
         if list_id != str(window.getFocusId()):
             break
-        last_path = window.getProperty("fentastic.%s.path" % list_id)
+        last_path = window.getProperty("nimbus.%s.path" % list_id)
         cpath_path = xbmc.getInfoLabel("ListItem.FolderPath")
         if last_path == cpath_path or xbmc.getCondVisibility(
             "System.HasActiveModalDialog"
@@ -70,8 +70,8 @@ def widget_monitor(list_id):
             position = int(xbmc.getInfoLabel("Container(%s).Position" % list_id))
             cpath_label = xbmc.getInfoLabel("ListItem.Label")
             stack_label_control.setLabel(cpath_label)
-            window.setProperty("fentastic.%s.label" % list_id, cpath_label)
-            window.setProperty("fentastic.%s.path" % list_id, cpath_path)
+            window.setProperty("nimbus.%s.label" % list_id, cpath_label)
+            window.setProperty("nimbus.%s.path" % list_id, cpath_path)
             monitor.waitForAbort(0.2)
             update_wait_time = 0
             while (
@@ -87,7 +87,7 @@ def widget_monitor(list_id):
                 pass
         else:
             stack_label_control.setLabel(
-                window.getProperty("fentastic.%s.label" % list_id)
+                window.getProperty("nimbus.%s.label" % list_id)
             )
             monitor.waitForAbort(0.25)
     try:

@@ -9,14 +9,14 @@ from threading import Thread, Event
 # from modules.logger import logger
 
 settings_path = xbmcvfs.translatePath(
-    "special://profile/addon_data/script.fentastic.helper/"
+    "special://profile/addon_data/script.nimbus.helper/"
 )
 
 spath_database_path = xbmcvfs.translatePath(
-    "special://profile/addon_data/script.fentastic.helper/spath_cache.db"
+    "special://profile/addon_data/script.nimbus.helper/spath_cache.db"
 )
 
-search_history_xml = "script-fentastic-search_history"
+search_history_xml = "script-nimbus-search_history"
 
 default_xmls = {
     "search_history": (search_history_xml, xmls.default_history, "SearchHistory")
@@ -63,7 +63,7 @@ class SPaths:
 
     def remove_all_spaths(self):
         dialog = xbmcgui.Dialog()
-        title = "FENtastic"
+        title = "Nimbus"
         prompt = "Are you sure you want to clear all search history? Once cleared, these items cannot be recovered. Proceed?"
         self.fetch_all_spaths()
         if dialog.yesno(title, prompt):
@@ -194,4 +194,4 @@ def remake_all_spaths(silent=False):
     for item in "search_history":
         SPaths(item).remake_search_history()
     if not silent:
-        xbmcgui.Dialog().ok("FENtastic", "Search history remade")
+        xbmcgui.Dialog().ok("Nimbus", "Search history remade")

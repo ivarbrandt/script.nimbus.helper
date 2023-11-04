@@ -11,7 +11,7 @@ import os
 window = Window(10000)
 
 PROFILE_PATH = os.path.join(
-    translatePath("special://userdata/addon_data/script.fentastic.helper"),
+    translatePath("special://userdata/addon_data/script.nimbus.helper"),
     "current_profile.json",
 )
 

@@ -20,7 +20,7 @@ media_xml_body = '\
 history_xml_body = "\
 \n        <item>\
 \n            <label>$NUMBER[{spath}]</label>\
-\n            <onclick>RunScript(script.fentastic.helper,mode=re_search)</onclick>\
+\n            <onclick>RunScript(script.nimbus.helper,mode=re_search)</onclick>\
 \n        </item>"
 
 
@@ -32,8 +32,8 @@ stacked_media_xml_body = '\
 \n            <param name="list_id" value="{cpath_list_id}"/>\
 \n        </include>\
 \n        <include content="{cpath_type}">\
-\n            <param name="content_path" value="$INFO[Window(Home).Property(fentastic.{cpath_list_id}.path)]"/>\
-\n            <param name="widget_header" value="$INFO[Window(Home).Property(fentastic.{cpath_list_id}.label)]"/>\
+\n            <param name="content_path" value="$INFO[Window(Home).Property(nimbus.{cpath_list_id}.path)]"/>\
+\n            <param name="widget_header" value="$INFO[Window(Home).Property(nimbus.{cpath_list_id}.label)]"/>\
 \n            <param name="widget_target" value="videos"/>\
 \n            <param name="list_id" value="{cpath_list_id}1"/>\
 \n        </include>'
@@ -119,7 +119,7 @@ search_history_xml = '\
 \n    <include name="SearchHistory">\
 \n        <item>\
 \n            <label>{spath}</label>\
-\n            <onclick>RunScript(script.fentastic.helper,mode=re_search)</onclick>\
+\n            <onclick>RunScript(script.nimbus.helper,mode=re_search)</onclick>\
 \n        </item>\
 \n    </include>\
 \n</includes>'

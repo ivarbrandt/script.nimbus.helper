@@ -65,7 +65,7 @@ def modify_keymap():
         root = tree.getroot()
 
         def has_play_trailer_tag(tag):
-            return tag.text == "RunScript(script.fentastic.helper, mode=play_trailer)"
+            return tag.text == "RunScript(script.nimbus.helper, mode=play_trailer)"
 
         play_pause_tags = root.findall(".//play_pause[@mod='longpress']")
         t_key_tags = root.findall(".//t")
@@ -79,16 +79,16 @@ def modify_keymap():
             if t_key_tags:
                 t_key_tags[
                     0
-                ].text = "RunScript(script.fentastic.helper, mode=play_trailer)"
+                ].text = "RunScript(script.nimbus.helper, mode=play_trailer)"
                 for tag in t_key_tags[1:]:
                     keyboard_tag.remove(tag)
             else:
                 t_key_tag = ET.SubElement(keyboard_tag, "t")
-                t_key_tag.text = "RunScript(script.fentastic.helper, mode=play_trailer)"
+                t_key_tag.text = "RunScript(script.nimbus.helper, mode=play_trailer)"
             if play_pause_tags:
                 play_pause_tags[
                     0
-                ].text = "RunScript(script.fentastic.helper, mode=play_trailer)"
+                ].text = "RunScript(script.nimbus.helper, mode=play_trailer)"
                 for tag in play_pause_tags[1:]:
                     keyboard_tag.remove(tag)
             else:
@@ -96,7 +96,7 @@ def modify_keymap():
                     keyboard_tag, "play_pause", mod="longpress"
                 )
                 play_pause_tag.text = (
-                    "RunScript(script.fentastic.helper, mode=play_trailer)"
+                    "RunScript(script.nimbus.helper, mode=play_trailer)"
                 )
         else:
             for tag_list in [play_pause_tags, t_key_tags]:

@@ -29,10 +29,10 @@ class RatingsService(xbmc.Monitor):
         if sender == "xbmc":
             if method in ("GUI.OnScreensaverActivated", "System.OnSleep"):
                 self.window(self.get_window_id()).setProperty("pause_services", "true")
-                logger("###FENtastic: Device is Asleep, PAUSING Ratings Service", 1)
+                logger("###Nimbus: Device is Asleep, PAUSING Ratings Service", 1)
             elif method in ("GUI.OnScreensaverDeactivated", "System.OnWake"):
                 self.window(self.get_window_id()).clearProperty("pause_services")
-                logger("###FENtastic: Device is Awake, RESUMING Ratings Service", 1)
+                logger("###Nimbus: Device is Awake, RESUMING Ratings Service", 1)
 
     def listitem_monitor(self):
         while not self.abortRequested():
@@ -42,7 +42,7 @@ class RatingsService(xbmc.Monitor):
             ):
                 self.waitForAbort(2)
                 continue
-            if xbmc.getSkinDir() != "skin.fentastic":
+            if xbmc.getSkinDir() != "skin.nimbus":
                 self.waitForAbort(15)
                 continue
             api_key = self.get_infolabel("Skin.String(mdblist_api_key)")
@@ -68,10 +68,10 @@ class RatingsService(xbmc.Monitor):
             imdb_id = self.get_infolabel("ListItem.IMDBNumber")
             set_property = self.window(self.get_window_id()).setProperty
             get_property = self.window(self.get_window_id()).getProperty
-            cached_ratings = get_property(f"fentastic.cachedRatings.{imdb_id}")
+            cached_ratings = get_property(f"nimbus.cachedRatings.{imdb_id}")
             if not imdb_id or not imdb_id.startswith("tt"):
                 for k, v in empty_ratings.items():
-                    set_property("fentastic.%s" % k, v)
+                    set_property("nimbus.%s" % k, v)
                 self.last_set_imdb_id = None
                 self.waitForAbort(0.2)
                 continue
@@ -81,7 +81,7 @@ class RatingsService(xbmc.Monitor):
             if cached_ratings:
                 result = json.loads(cached_ratings)
                 for k, v in result.items():
-                    set_property("fentastic.%s" % k, v)
+                    set_property("nimbus.%s" % k, v)
                 self.last_set_imdb_id = imdb_id
                 self.waitForAbort(0.2)
                 continue
@@ -92,11 +92,11 @@ class RatingsService(xbmc.Monitor):
         set_property = self.window(self.get_window_id()).setProperty
         result = self.mdblist_api().fetch_info({"imdb_id": imdb_id}, api_key)
         if result:
-            set_property(f"fentastic.cachedRatings.{imdb_id}", json.dumps(result))
+            set_property(f"nimbus.cachedRatings.{imdb_id}", json.dumps(result))
             for k, v in result.items():
-                set_property("fentastic.%s" % k, v)
+                set_property("nimbus.%s" % k, v)
 
 
-logger("###FENtastic: Ratings Service Started", 1)
+logger("###Nimbus: Ratings Service Started", 1)
 RatingsService().listitem_monitor()
-logger("###FENtastic: RatingsService Finished", 1)
+logger("###Nimbus: RatingsService Finished", 1)
