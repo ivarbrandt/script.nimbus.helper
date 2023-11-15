@@ -5,10 +5,14 @@ import xbmc, xbmcgui
 
 
 def widget_monitor(list_id):
+    property_name = "nimbus.stacked"
     if len(list_id) != 5:
+        window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+        window.clearProperty(property_name)
+        xbmc.log("Clearing stacked property for list_id: {}".format(list_id), 2)
         return
     monitor = xbmc.Monitor()
-    window = None
+    window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
     try:
         delay = float(xbmc.getInfoLabel("Skin.String(category_widget_delay)")) / 1000
     except:
@@ -23,16 +27,14 @@ def widget_monitor(list_id):
         if window_id not in [10000, 11121]:
             break
         else:
-            window = xbmcgui.Window(window_id)
+            window.setProperty(property_name, "true")
+            xbmc.log("Setting stacked property for list_id: {}".format(list_id), 2)
             stack_control = window.getControl(int(stack_id))
             stack_label_control = (
                 window.getControl(int(stack_id + "666"))
                 or window.getControl(int(stack_id + "667"))
                 or window.getControl(int(stack_id + "668"))
                 or window.getControl(int(stack_id + "669"))
-                or window.getControl(int(stack_id + "670"))
-                or window.getControl(int(stack_id + "671"))
-                or window.getControl(int(stack_id + "672"))
             )
         monitor.waitForAbort(0.25)
         if list_id != str(window.getFocusId()):
@@ -90,6 +92,13 @@ def widget_monitor(list_id):
                 window.getProperty("nimbus.%s.label" % list_id)
             )
             monitor.waitForAbort(0.25)
+    window.clearProperty(property_name)
+    xbmc.log(
+        "Widget monitor loop has ended, clearing stacked property for list_id: {}".format(
+            list_id
+        ),
+        2,
+    )
     try:
         del monitor
     except:
