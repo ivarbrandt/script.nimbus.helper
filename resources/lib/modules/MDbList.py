@@ -181,7 +181,7 @@ class MDbListAPI:
 
 def play_trailer_in_window(play_url):
     list_item = xbmcgui.ListItem(path=play_url)
-    xbmc.Player().play(play_url, list_item)
+    xbmc.Player().play(play_url, list_item, windowed=True)
 
 
 def play_trailer():
