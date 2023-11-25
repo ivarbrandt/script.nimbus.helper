@@ -49,12 +49,24 @@ def get_all_existing_keymap_paths():
     return existing_paths
 
 
-def get_parent_map(tree):
-    return {c: p for p in tree.iter() for c in p}
+def create_new_keymap_file():
+    default_keymap_name = "gen.xml"
+    new_keymap_path = xbmcvfs.translatePath(f"{KEYMAP_LOCATION}{default_keymap_name}")
+    root = ET.Element("keymap")
+    tree = ET.ElementTree(root)
+    tree.write(new_keymap_path)
+    return new_keymap_path
+
+
+# def get_parent_map(tree):
+#     return {c: p for p in tree.iter() for c in p}
 
 
 def modify_keymap():
     keymap_paths = get_all_existing_keymap_paths()
+    if not keymap_paths:
+        new_keymap_path = create_new_keymap_file()
+        keymap_paths = [new_keymap_path]
     setting_value = xbmc.getCondVisibility("Skin.HasSetting(Enable.OneClickTrailers)")
     for keymap_path in keymap_paths:
         if not setting_value:
