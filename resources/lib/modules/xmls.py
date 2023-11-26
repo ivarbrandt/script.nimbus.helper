@@ -23,21 +23,6 @@ history_xml_body = "\
 \n            <onclick>RunScript(script.nimbus.helper,mode=re_search)</onclick>\
 \n        </item>"
 
-
-stacked_media_xml_body = '\
-\n        <include content="WidgetListCategoryStacked">\
-\n            <param name="content_path" value="{cpath_path}"/>\
-\n            <param name="widget_header" value="{cpath_header}"/>\
-\n            <param name="widget_target" value="videos"/>\
-\n            <param name="list_id" value="{cpath_list_id}"/>\
-\n        </include>\
-\n        <include content="{cpath_type}">\
-\n            <param name="content_path" value="$INFO[Window(Home).Property(nimbus.{cpath_list_id}.path)]"/>\
-\n            <param name="widget_header" value="$INFO[Window(Home).Property(nimbus.{cpath_list_id}.label)]"/>\
-\n            <param name="widget_target" value="videos"/>\
-\n            <param name="list_id" value="{cpath_list_id}1"/>\
-\n        </include>'
-
 main_menu_movies_xml = '\
 <?xml version="1.0" encoding="UTF-8"?>\
 \n<includes>\
