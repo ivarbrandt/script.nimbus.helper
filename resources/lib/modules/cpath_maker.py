@@ -10,7 +10,7 @@ from modules import xmls
 dialog = xbmcgui.Dialog()
 window = xbmcgui.Window(10000)
 Listitem = xbmcgui.ListItem
-max_widgets = 10
+max_widgets = 100
 
 settings_path = xbmcvfs.translatePath(
     "special://profile/addon_data/script.nimbus.helper/"
@@ -361,7 +361,7 @@ class CPaths:
         widget_choices = [
             "Widget %s : %s"
             % (count, active_cpaths.get(count, {}).get("cpath_label", ""))
-            for count in range(1, 11)
+            for count in range(1, 101)
         ]
         choice = dialog.select("Choose widget", widget_choices)
         if choice == -1:
