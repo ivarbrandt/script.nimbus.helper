@@ -361,9 +361,12 @@ class CPaths:
         widget_choices = [
             "Widget %s : %s"
             % (count, active_cpaths.get(count, {}).get("cpath_label", ""))
-            for count in range(1, 101)
+            for count in range(1, 51)
         ]
-        choice = dialog.select("Choose widget", widget_choices)
+        selected_label = xbmc.getInfoLabel("Container(9000).ListItem.Label")
+        choice = dialog.select(
+            "Choose widget ({})".format(selected_label), widget_choices
+        )
         if choice == -1:
             return self.make_widget_xml(active_cpaths)
         active_cpath_check = choice + 1
@@ -462,8 +465,10 @@ class CPaths:
                 ("Move down", "move_down"),
                 ("Display type", "display_type"),
             ] + choices
+        selected_label = xbmc.getInfoLabel("Container(9000).ListItem.Label")
         choice = dialog.select(
-            "%s options" % self.path_type.capitalize().replace("_", " "),
+            "%s options ({})".format(selected_label)
+            % self.path_type.capitalize().replace("_", " "),
             [i[0] for i in choices],
         )
         if choice == -1:
