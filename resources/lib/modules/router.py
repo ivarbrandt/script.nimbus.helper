@@ -104,3 +104,8 @@ def routing():
         from modules.helper import clear_image_cache
 
         return clear_image_cache()
+
+    if mode == "calculate_cache_size":
+        from modules.helper import calculate_cache_size
+
+        return calculate_cache_size()

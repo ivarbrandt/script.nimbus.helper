@@ -59,6 +59,20 @@ def winprop(key, value=None, clear=False, window_id=10000):
         return result
 
 
+def calculate_cache_size(path=ADDON_DATA_IMG_PATH):
+    total_size = 0
+    for item in os.listdir(path):
+        full_path = os.path.join(path, item)
+        if os.path.isfile(full_path):
+            total_size += os.path.getsize(full_path)
+        elif os.path.isdir(full_path):
+            total_size += calculate_cache_size(full_path)
+
+    size_in_mb = total_size / (1024 * 1024)
+    xbmc.executebuiltin(f"Skin.SetString(CacheSize,{size_in_mb:.2f} MB)")
+    return size_in_mb
+
+
 def clear_image_cache(params=None, path=ADDON_DATA_IMG_PATH, delete=False):
     if not delete:
         dialog = xbmcgui.Dialog()
@@ -72,3 +86,4 @@ def clear_image_cache(params=None, path=ADDON_DATA_IMG_PATH, delete=False):
                 os.remove(full_path)
             else:
                 clear_image_cache(params, full_path, True)
+    calculate_cache_size(path)
