@@ -57,3 +57,18 @@ def winprop(key, value=None, clear=False, window_id=10000):
                 result = result in ("true", "1")
 
         return result
+
+
+def clear_image_cache(params=None, path=ADDON_DATA_IMG_PATH, delete=False):
+    if not delete:
+        dialog = xbmcgui.Dialog()
+        if dialog.yesno("Nimbus", "Are you sure you want to clear the image cache?"):
+            delete = True
+
+    if delete:
+        for item in os.listdir(path):
+            full_path = os.path.join(path, item)
+            if os.path.isfile(full_path):
+                os.remove(full_path)
+            else:
+                clear_image_cache(params, full_path, True)

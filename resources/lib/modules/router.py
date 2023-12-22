@@ -89,13 +89,18 @@ def routing():
         from modules.custom_actions import fix_black_screen
 
         return fix_black_screen()
-    
+
     if mode == "set_blurradius":
         from modules.custom_actions import set_blurradius
 
         return set_blurradius()
-    
+
     if mode == "set_blursaturation":
         from modules.custom_actions import set_blursaturation
 
         return set_blursaturation()
+
+    if mode == "clear_image_cache":
+        from modules.helper import clear_image_cache
+
+        return clear_image_cache()
