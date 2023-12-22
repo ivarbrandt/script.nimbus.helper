@@ -1,7 +1,9 @@
 import xbmc, xbmcgui
 from threading import Thread
 from modules.MDbList import MDbListAPI
+from modules.image import *
 import json
+import xbmcaddon
 
 logger = xbmc.log
 empty_ratings = {
@@ -97,6 +99,27 @@ class RatingsService(xbmc.Monitor):
                 set_property("nimbus.%s" % k, v)
 
 
-logger("###Nimbus: Ratings Service Started", 1)
-RatingsService().listitem_monitor()
-logger("###Nimbus: RatingsService Finished", 1)
+class ImageService(xbmc.Monitor):
+    def __init__(self):
+        xbmc.Monitor.__init__(self)
+        self.blur = ImageBlur
+        self.get_visibility = xbmc.getCondVisibility
+        self.get_infolabel = xbmc.getInfoLabel
+
+    def image_monitor(self):
+        while not self.abortRequested():
+            if self.get_visibility("Skin.HasSetting(Enable.BackgroundBlur)"):
+                radius = self.get_infolabel("Skin.String(BlurRadius)") or "40"
+                saturation = self.get_infolabel("Skin.String(BlurSaturation)") or "2.0"
+                self.blur(radius=radius, saturation=saturation)
+                self.waitForAbort(0.2)
+            else:
+                self.waitForAbort(2)
+
+
+logger("###Nimbus: Services Started", 1)
+ratings_thread = Thread(target=RatingsService().listitem_monitor)
+image_thread = Thread(target=ImageService().image_monitor)
+ratings_thread.start()
+image_thread.start()
+logger("###Nimbus: Services Finished", 1)

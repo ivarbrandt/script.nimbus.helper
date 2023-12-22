@@ -5,7 +5,6 @@ from xml.dom import minidom
 KEYMAP_LOCATION = "special://userdata/keymaps/"
 POSSIBLE_KEYMAP_NAMES = ["gen.xml", "keyboard.xml", "keymap.xml"]
 
-
 def set_image():
     image_file = xbmcgui.Dialog().browse(
         2, "Choose Custom Background Image", "network", ".jpg|.png|.bmp", False, False
@@ -17,7 +16,24 @@ def set_image():
 def fix_black_screen():
     if xbmc.getCondVisibility("Skin.HasSetting(TrailerPlaying)"):
         xbmc.executebuiltin("Skin.ToggleSetting(TrailerPlaying)")
+        
+def set_blurradius():
+    current_value = xbmc.getInfoLabel('Skin.String(BlurRadius)') or "40"
+    dialog = xbmcgui.Dialog()
+    value = dialog.numeric(0, "Enter a value between 2 and 40 or enter empty value to reset to default", current_value)
+    if value == "":
+        value = "40"
+    xbmc.executebuiltin(f"Skin.SetString(BlurRadius,{value})")
 
+def set_blursaturation():
+    current_value = xbmc.getInfoLabel('Skin.String(BlurSaturation)') or "2.0"
+    keyboard = xbmc.Keyboard(current_value, "Enter a value between 0.5 and 3.0 or enter empty value to reset to default")
+    keyboard.doModal()
+    if keyboard.isConfirmed():
+        text = keyboard.getText()
+        if text == "":
+            text = "2.0"
+        xbmc.executebuiltin(f"Skin.SetString(BlurSaturation,{text})")
 
 # def get_current_keymap_path():
 #     for keymap_name in POSSIBLE_KEYMAP_NAMES:
@@ -25,7 +41,6 @@ def fix_black_screen():
 #         if xbmcvfs.exists(keymap_path):
 #             return keymap_path
 #     return None
-
 
 def make_backup(keymap_path):
     backup_path = f"{keymap_path}.backup"
