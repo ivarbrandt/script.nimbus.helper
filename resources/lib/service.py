@@ -59,14 +59,14 @@ class RatingsService(xbmc.Monitor):
             if self.get_visibility("Container.Scrolling"):
                 self.waitForAbort(0.2)
                 continue
-            if self.get_visibility("Skin.HasSetting(TrailerPlaying)"):
-                self.waitForAbort(3)
-                while xbmc.Player().isPlaying():
-                    if self.waitForAbort(0.5):
-                        break
-                xbmc.executebuiltin("Skin.ToggleSetting(TrailerPlaying)")
-                self.waitForAbort(0.2)
-                continue
+            # if self.get_visibility("Skin.HasSetting(TrailerPlaying)"):
+            #     self.waitForAbort(3)
+            #     while xbmc.Player().isPlaying():
+            #         if self.waitForAbort(0.5):
+            #             break
+            #     xbmc.executebuiltin("Skin.ToggleSetting(TrailerPlaying)")
+            #     self.waitForAbort(0.2)
+            #     continue
             imdb_id = self.get_infolabel("ListItem.IMDBNumber")
             set_property = self.window(self.get_window_id()).setProperty
             get_property = self.window(self.get_window_id()).getProperty
