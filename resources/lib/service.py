@@ -70,16 +70,21 @@ class RatingsService(xbmc.Monitor):
             imdb_id = self.get_infolabel("ListItem.IMDBNumber")
             set_property = self.window(self.get_window_id()).setProperty
             get_property = self.window(self.get_window_id()).getProperty
+            clear_property = self.window(self.get_window_id()).clearProperty
             cached_ratings = get_property(f"nimbus.cachedRatings.{imdb_id}")
             if not imdb_id or not imdb_id.startswith("tt"):
+                clear_property("nimbus.trailer_ready")
                 for k, v in empty_ratings.items():
                     set_property("nimbus.%s" % k, v)
                 self.last_set_imdb_id = None
                 self.waitForAbort(0.2)
                 continue
             if imdb_id == self.last_set_imdb_id:
+                set_property("nimbus.trailer_ready", "true")
                 self.waitForAbort(0.2)
                 continue
+            else:
+                clear_property("nimbus.trailer_ready")
             if cached_ratings:
                 result = json.loads(cached_ratings)
                 for k, v in result.items():
