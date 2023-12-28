@@ -79,10 +79,12 @@ class RatingsService(xbmc.Monitor):
                 self.last_set_imdb_id = None
                 self.waitForAbort(0.2)
                 continue
+            current_trailer_ready_status = get_property("nimbus.trailer_ready")
             if imdb_id == self.last_set_imdb_id:
-                set_property("nimbus.trailer_ready", "true")
-                self.waitForAbort(0.2)
-                continue
+                if current_trailer_ready_status != "true":
+                    set_property("nimbus.trailer_ready", "true")
+                    self.waitForAbort(0.2)
+                    continue
             else:
                 clear_property("nimbus.trailer_ready")
             if cached_ratings:
