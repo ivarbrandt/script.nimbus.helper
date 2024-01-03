@@ -1,6 +1,6 @@
 import xbmc, xbmcgui
 from threading import Thread
-from modules.MDbList import MDbListAPI
+from modules.MDbList import *
 from modules.image import *
 import json
 import xbmcaddon
@@ -17,11 +17,145 @@ empty_ratings = {
 }
 
 
+class TrailerService(xbmc.Monitor):
+    def __init__(self):
+        xbmc.Monitor.__init__(self)
+        self.last_imdb_id = None
+        self.get_infolabel = xbmc.getInfoLabel
+        self.get_visibility = xbmc.getCondVisibility
+        self.window = xbmcgui.Window
+        self.get_window_id = xbmcgui.getCurrentWindowId
+
+    def trailer_monitor(self):
+        # xbmc.log(
+        #     "Trailer Monitor Service Started", xbmc.LOGINFO
+        # )
+        while not self.abortRequested():
+            trailer_setting = self.get_infolabel("Skin.String(trailerSetting)")
+            if trailer_setting != "2":
+                # xbmc.log("Autotrailers not enabled", xbmc.LOGINFO)
+                self.waitForAbort(2)
+                continue
+            if self.get_visibility(
+                "Skin.HasSetting(TrailerPlaying)"
+            ) or self.get_visibility("Player.HasMedia"):
+                # xbmc.log("Media is currently playing", xbmc.LOGINFO)
+                self.waitForAbort(2)
+                continue
+            if not self.get_visibility(
+                "Window.IsVisible(home) | Window.IsVisible(11121) | Control.IsVisible(54) | Control.IsVisible(55)"
+            ):
+                # xbmc.log("Autotrailers not allowed in this window", xbmc.LOGINFO)
+                self.waitForAbort(1)
+                continue
+            if self.get_visibility("Container.Scrolling"):
+                # xbmc.log("Container is currently scrolling", xbmc.LOGINFO)
+                self.waitForAbort(0.2)
+                continue
+            current_dbtype = self.get_infolabel("ListItem.DBType")
+            if current_dbtype in ["season", "episode"]:
+                # xbmc.log(
+                #     "Autotrailers are not allowed for seasons or episodes", xbmc.LOGINFO
+                # )
+                self.waitForAbort(0.5)
+                continue
+            current_imdb_id = self.get_infolabel("ListItem.IMDBNumber")
+            if not current_imdb_id or not current_imdb_id.startswith("tt"):
+                # xbmc.log("Invalid IMDB ID", xbmc.LOGINFO)
+                self.last_imdb_id = None
+                self.waitForAbort(0.2)
+                continue
+            container_updating = self.get_visibility(f"Container.IsUpdating")
+            wait_interval = self.get_infolabel("Skin.String(waitInterval)")
+            wait_times = {
+                "0": 3,
+                "1": 5,
+                "2": 7,
+                "3": 9,
+                "4": 11,
+                "5": 13,
+                "6": 15,
+                "7": 20,
+                "8": 25,
+                "9": 30,
+            }
+            wait_time = wait_times.get(wait_interval, 5)
+            if not container_updating:
+                # xbmc.log(
+                #     f"Preparing to wait for {wait_time} seconds before playing trailer",
+                #     xbmc.LOGINFO,
+                # )
+                self.last_imdb_id = current_imdb_id
+                wait_start_time = time.time()
+                interrupted = False
+                while time.time() - wait_start_time < wait_time:
+                    controls_visible = self.get_visibility(
+                        "ControlGroup(9000).HasFocus | Control.HasFocus(6130) | Control.HasFocus(6131) | Control.HasFocus(5199) | Control.HasFocus(531)"
+                    )
+                    if (
+                        self.get_infolabel("ListItem.IMDBNumber") != current_imdb_id
+                        or controls_visible
+                    ):
+                        # xbmc.log(
+                        #     "IMDb ID changed, interrupting trailer playback.",
+                        #     xbmc.LOGINFO,
+                        # )
+                        interrupted = True
+                        break
+                    self.waitForAbort(0.2)
+                if not interrupted:
+                    play_trailer()
+                    # xbmc.log(
+                    #     "Trailer played as wait was not interrupted.", xbmc.LOGINFO
+                    # )
+                # else:
+                #     xbmc.log(
+                #         "Wait was interrupted or a trailer is already playing; not playing trailer.",
+                #         xbmc.LOGINFO,
+                #     )
+
+            self.waitForAbort(2)  # Wait a bit before next loop iteration
+
+    # def trailer_monitor(self):
+    #     xbmc.log("Trailer Monitor Service Started", xbmc.LOGINFO)  # Using xbmc.LOGINFO for clarity
+    #     while not self.abortRequested():
+    #         trailer_setting = self.get_infolabel("Skin.String(trailerSetting)")
+    #         current_imdb_id = self.get_infolabel("ListItem.IMDBNumber")
+    #         container_updating = self.get_visibility(f"Container.IsUpdating")
+    #         trailer_ready = self.get_visibility("Skin.HasSetting(nimbus.trailer_ready)")
+    #         wait_interval = self.get_infolabel("Skin.String(waitInterval)")
+
+    #         # Define a mapping of waitInterval values to wait times
+    #         wait_times = {'0': 3, '1': 5, '2': 7, '3': 9, '4': 11, '5': 13, '6': 15, '7': 20, '8': 25, '9': 30}
+    #         wait_time = wait_times.get(wait_interval, 3)
+    #         if (trailer_setting == '2' and
+    #             not self.get_visibility("Skin.HasSetting(TrailerPlaying)") and not container_updating and
+    #             current_imdb_id and
+    #             self.last_imdb_id_played != current_imdb_id):
+
+    #             xbmc.log(f"Attempting to play trailer after waiting for {wait_time} seconds", xbmc.LOGINFO)
+    #             # Loop for the wait time, checking for changes in focus
+    #             wait_start_time = time.time()  # Capture the start time of the wait
+    #             while time.time() - wait_start_time < wait_time:
+    #                 # Check if focus has changed
+    #                 if not trailer_ready:
+    #                     # Break out of the wait loop if focus changes or trailer_ready is reset
+    #                     break
+    #                 self.waitForAbort(0.5)  # Check every 0.5 seconds
+    #             self.waitForAbort(wait_time)
+    #             play_trailer()  # Ensure this function is defined and correctly implemented
+    #             self.waitForAbort(1)  # Wait a brief moment before updating last_imdb_id_played
+    #             self.last_imdb_id_played = current_imdb_id
+
+    #         self.waitForAbort(2)
+
+
 class RatingsService(xbmc.Monitor):
     def __init__(self):
         xbmc.Monitor.__init__(self)
         self.mdblist_api = MDbListAPI
         self.last_set_imdb_id = None
+        # self.last_imdb_id_played = None
         self.window = xbmcgui.Window
         self.get_window_id = xbmcgui.getCurrentWindowId
         self.get_infolabel = xbmc.getInfoLabel
@@ -127,6 +261,8 @@ class ImageService(xbmc.Monitor):
 logger("###Nimbus: Services Started", 1)
 ratings_thread = Thread(target=RatingsService().listitem_monitor)
 image_thread = Thread(target=ImageService().image_monitor)
+trailer_thread = Thread(target=TrailerService().trailer_monitor)
 ratings_thread.start()
 image_thread.start()
+trailer_thread.start()
 logger("###Nimbus: Services Finished", 1)

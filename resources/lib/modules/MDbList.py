@@ -201,6 +201,29 @@ def play_trailer():
                     play_trailer_in_window(play_url)
 
 
+# def autoplay_trailer():
+#     xbmc.log("Autoplay Trailer Triggered", xbmc.LOGINFO)
+#     xbmc.executebuiltin("Skin.SetBool(WaitInProgress)")
+#     wait_interval = xbmc.getInfoLabel("Skin.String(waitInterval)")
+#     window_id = xbmcgui.getCurrentWindowId()
+#     window = xbmcgui.Window(window_id)
+#     previous_focus_id = window.getFocusId()
+#     previous_control_id = xbmc.getInfoLabel(f"Container({previous_focus_id}).CurrentItem")
+#     wait_times = {'0': 3, '1': 5, '2': 7, '3': 9, '4': 11, '5': 13, '6': 15, '7': 20, '8': 25, '9': 30}
+#     wait_time = wait_times.get(wait_interval, 5)
+#     wait_start_time = time.time()
+#     while time.time() - wait_start_time < wait_time:
+#         current_focus_id = window.getFocusId()
+#         current_control_id = xbmc.getInfoLabel(f"Container({current_focus_id}).CurrentItem")
+#         if current_control_id != previous_control_id or previous_focus_id != current_focus_id:
+#             xbmc.log("Wait has been interrupted. Exiting loop.", xbmc.LOGINFO)
+#             xbmc.executebuiltin("Skin.Reset(WaitInProgress)")
+#             return
+#         xbmc.sleep(500)
+#     play_trailer()
+#     xbmc.executebuiltin("Skin.Reset(WaitInProgress)")
+
+
 def set_api_key():
     keyboard = xbmc.Keyboard("", "Enter MDbList API Key")
     keyboard.doModal()
