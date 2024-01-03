@@ -114,40 +114,7 @@ class TrailerService(xbmc.Monitor):
                 #         xbmc.LOGINFO,
                 #     )
 
-            self.waitForAbort(2)  # Wait a bit before next loop iteration
-
-    # def trailer_monitor(self):
-    #     xbmc.log("Trailer Monitor Service Started", xbmc.LOGINFO)  # Using xbmc.LOGINFO for clarity
-    #     while not self.abortRequested():
-    #         trailer_setting = self.get_infolabel("Skin.String(trailerSetting)")
-    #         current_imdb_id = self.get_infolabel("ListItem.IMDBNumber")
-    #         container_updating = self.get_visibility(f"Container.IsUpdating")
-    #         trailer_ready = self.get_visibility("Skin.HasSetting(nimbus.trailer_ready)")
-    #         wait_interval = self.get_infolabel("Skin.String(waitInterval)")
-
-    #         # Define a mapping of waitInterval values to wait times
-    #         wait_times = {'0': 3, '1': 5, '2': 7, '3': 9, '4': 11, '5': 13, '6': 15, '7': 20, '8': 25, '9': 30}
-    #         wait_time = wait_times.get(wait_interval, 3)
-    #         if (trailer_setting == '2' and
-    #             not self.get_visibility("Skin.HasSetting(TrailerPlaying)") and not container_updating and
-    #             current_imdb_id and
-    #             self.last_imdb_id_played != current_imdb_id):
-
-    #             xbmc.log(f"Attempting to play trailer after waiting for {wait_time} seconds", xbmc.LOGINFO)
-    #             # Loop for the wait time, checking for changes in focus
-    #             wait_start_time = time.time()  # Capture the start time of the wait
-    #             while time.time() - wait_start_time < wait_time:
-    #                 # Check if focus has changed
-    #                 if not trailer_ready:
-    #                     # Break out of the wait loop if focus changes or trailer_ready is reset
-    #                     break
-    #                 self.waitForAbort(0.5)  # Check every 0.5 seconds
-    #             self.waitForAbort(wait_time)
-    #             play_trailer()  # Ensure this function is defined and correctly implemented
-    #             self.waitForAbort(1)  # Wait a brief moment before updating last_imdb_id_played
-    #             self.last_imdb_id_played = current_imdb_id
-
-    #         self.waitForAbort(2)
+            self.waitForAbort(2)
 
 
 class RatingsService(xbmc.Monitor):
