@@ -20,19 +20,19 @@ def fix_black_screen():
 def set_blurradius():
     current_value = xbmc.getInfoLabel('Skin.String(BlurRadius)') or "40"
     dialog = xbmcgui.Dialog()
-    value = dialog.numeric(0, "Enter a value between 2 and 40 or enter empty value to reset to default", current_value)
+    value = dialog.numeric(0, "Enter blur radius value", current_value)
     if value == "":
         value = "40"
     xbmc.executebuiltin(f"Skin.SetString(BlurRadius,{value})")
 
 def set_blursaturation():
-    current_value = xbmc.getInfoLabel('Skin.String(BlurSaturation)') or "2.0"
-    keyboard = xbmc.Keyboard(current_value, "Enter a value between 0.5 and 3.0 or enter empty value to reset to default")
+    current_value = xbmc.getInfoLabel('Skin.String(BlurSaturation)') or "2.5"
+    keyboard = xbmc.Keyboard(current_value, "Enter blur saturation value")
     keyboard.doModal()
     if keyboard.isConfirmed():
         text = keyboard.getText()
         if text == "":
-            text = "2.0"
+            text = "2.5"
         xbmc.executebuiltin(f"Skin.SetString(BlurSaturation,{text})")
 
 # def get_current_keymap_path():
