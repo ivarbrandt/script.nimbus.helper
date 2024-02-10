@@ -31,7 +31,6 @@ main_menu_movies_xml = '\
 \n            <label>{cpath_header}</label>\
 \n            <onclick>ActivateWindow(Videos,{main_menu_path},return)</onclick>\
 \n            <property name="menu_id">$NUMBER[19000]</property>\
-\n            <thumb>icons/sidemenu/movies.png</thumb>\
 \n            <property name="id">movies</property>\
 \n            <visible>!Skin.HasSetting(HomeMenuNoMovieButton)</visible>\
 \n        </item>\
@@ -46,7 +45,6 @@ main_menu_tvshows_xml = '\
 \n            <label>{cpath_header}</label>\
 \n            <onclick>ActivateWindow(Videos,{main_menu_path},return)</onclick>\
 \n            <property name="menu_id">$NUMBER[22000]</property>\
-\n            <thumb>icons/sidemenu/tv.png</thumb>\
 \n            <property name="id">tvshows</property>\
 \n            <visible>!Skin.HasSetting(HomeMenuNoTVShowButton)</visible>\
 \n        </item>\
@@ -61,7 +59,6 @@ main_menu_custom1_xml = '\
 \n            <label>{cpath_header}</label>\
 \n            <onclick>ActivateWindow(Videos,{main_menu_path},return)</onclick>\
 \n            <property name="menu_id">$NUMBER[23000]</property>\
-\n            <thumb>icons/sidemenu/tv.png</thumb>\
 \n            <property name="id">custom1</property>\
 \n            <visible>!Skin.HasSetting(HomeMenuNoCustom1Button)</visible>\
 \n        </item>\
@@ -76,7 +73,6 @@ main_menu_custom2_xml = '\
 \n            <label>{cpath_header}</label>\
 \n            <onclick>ActivateWindow(Videos,{main_menu_path},return)</onclick>\
 \n            <property name="menu_id">$NUMBER[24000]</property>\
-\n            <thumb>icons/sidemenu/tv.png</thumb>\
 \n            <property name="id">custom2</property>\
 \n            <visible>!Skin.HasSetting(HomeMenuNoCustom2Button)</visible>\
 \n        </item>\
@@ -91,7 +87,6 @@ main_menu_custom3_xml = '\
 \n            <label>{cpath_header}</label>\
 \n            <onclick>ActivateWindow(Videos,{main_menu_path},return)</onclick>\
 \n            <property name="menu_id">$NUMBER[25000]</property>\
-\n            <thumb>icons/sidemenu/tv.png</thumb>\
 \n            <property name="id">custom3</property>\
 \n            <visible>!Skin.HasSetting(HomeMenuNoCustom3Button)</visible>\
 \n        </item>\
