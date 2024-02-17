@@ -49,12 +49,12 @@ class Service(xbmc.Monitor):
         return self.get_visibility("Container.Scrolling")
 
     def onNotification(self, sender, method, data):
-        logger(
-            "Notification received - Sender: {}, Method: {}, Data: {}".format(
-                sender, method, data
-            ),
-            1,
-        )
+        # logger(
+        #     "Notification received - Sender: {}, Method: {}, Data: {}".format(
+        #         sender, method, data
+        #     ),
+        #     1,
+        # )
         if sender == "xbmc":
             if method in ("GUI.OnScreensaverActivated", "System.OnSleep"):
                 self.window(self.get_window_id()).setProperty("pause_services", "true")
