@@ -81,7 +81,7 @@ main_include_dict = {
 }
 widget_types = (
     ("Poster", "WidgetListPoster"),
-    ("Category", "WidgetListCategory"),
+    ("Square", "WidgetListSquare"),
 )
 default_path = "addons://sources/video"
 
