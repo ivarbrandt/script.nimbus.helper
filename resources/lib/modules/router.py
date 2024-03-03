@@ -74,6 +74,10 @@ def routing():
         from modules.custom_actions import set_image
 
         return set_image()
+    
+    if mode == "capture_user_key":
+        from modules.custom_actions import capture_user_key
+        return capture_user_key()
 
     if mode == "modify_keymap":
         from modules.custom_actions import modify_keymap
