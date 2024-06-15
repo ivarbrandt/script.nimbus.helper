@@ -179,26 +179,19 @@ class MDbListAPI:
         return data
 
 
-def play_trailer_in_window(play_url):
-    list_item = xbmcgui.ListItem(path=play_url)
-    xbmc.Player().play(play_url, list_item, windowed=True)
-
-
 def play_trailer():
-    if xbmc.getCondVisibility("!String.IsEmpty(Skin.String(mdblist_api_key))"):
-        if not xbmc.getCondVisibility(
-            "String.IsEmpty(Window.Property(nimbus.trailer_ready))"
-        ):
-            trailer_url = xbmc.getInfoLabel("Window.Property(nimbus.trailer)")
-            if trailer_url:
-                match = re.search(r"v=([a-zA-Z0-9_-]+)", trailer_url)
-                if match:
-                    video_id = match.group(1)
-                    xbmc.executebuiltin("Skin.SetBool(TrailerPlaying)")
-                    play_url = (
-                        "plugin://plugin.video.youtube/play/?video_id=" + video_id
-                    )
-                    play_trailer_in_window(play_url)
+    if not xbmc.getCondVisibility(
+        "String.IsEmpty(Window.Property(nimbus.trailer_ready))"
+    ):
+        trailer_source = xbmc.getInfoLabel("Skin.String(TrailerSource)")
+        play_url = None
+        if trailer_source == "0":
+            play_url = xbmc.getInfoLabel("ListItem.Trailer")
+        elif trailer_source == "1":
+            play_url = xbmc.getInfoLabel("Skin.String(TrailerPlaybackURL)")
+        if play_url:
+            xbmc.executebuiltin("Skin.SetString(TrailerPlaying, true)")
+            xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
 
 
 def set_api_key():

@@ -3,6 +3,7 @@ from threading import Thread
 from modules.MDbList import *
 from modules.image import *
 import json
+import re
 
 logger = xbmc.log
 empty_ratings = {
@@ -14,6 +15,8 @@ empty_ratings = {
     "popularRating": "",
     "tmdbRating": "",
 }
+
+video_id_pattern = re.compile(r"v=([a-zA-Z0-9_-]+)")
 
 
 class Service(xbmc.Monitor):
@@ -32,8 +35,6 @@ class Service(xbmc.Monitor):
 
     def run(self):
         image_thread = Thread(target=self.image_monitor)
-        trailer_thread = Thread(target=self.trailer_monitor)
-        trailer_thread.start()
         image_thread.start()
         while not self.abortRequested():
             self.ratings_monitor()
@@ -123,6 +124,7 @@ class Service(xbmc.Monitor):
             cached_ratings = get_property(f"nimbus.cachedRatings.{imdb_id}")
             if not imdb_id or not imdb_id.startswith("tt"):
                 clear_property("nimbus.trailer_ready")
+                xbmc.executebuiltin(f"Skin.Reset(TrailerPlaybackURL)")
                 for k, v in empty_ratings.items():
                     set_property("nimbus.%s" % k, v)
                 self.last_set_imdb_id = None
@@ -132,6 +134,17 @@ class Service(xbmc.Monitor):
             if imdb_id == self.last_set_imdb_id:
                 if current_trailer_ready_status != "true":
                     set_property("nimbus.trailer_ready", "true")
+                    trailer_url = xbmc.getInfoLabel("Window.Property(nimbus.trailer)")
+                if trailer_url:
+                    match = video_id_pattern.search(trailer_url)
+                    if match:
+                        video_id = match.group(1)
+                        play_url = (
+                            f"plugin://plugin.video.youtube/play/?video_id={video_id}"
+                        )
+                        xbmc.executebuiltin(
+                            f"Skin.SetString(TrailerPlaybackURL,{play_url})"
+                        )
                     self.waitForAbort(0.2)
                     continue
             else:
@@ -153,74 +166,6 @@ class Service(xbmc.Monitor):
             set_property(f"nimbus.cachedRatings.{imdb_id}", json.dumps(result))
             for k, v in result.items():
                 set_property("nimbus.%s" % k, v)
-
-    def trailer_monitor(self):
-        while not self.abortRequested():
-            if self.pause_services():
-                self.waitForAbort(2)
-                continue
-            if self.not_nimbus():
-                self.waitForAbort(15)
-                continue
-            trailer_setting = self.get_infolabel("Skin.String(trailerSetting)")
-            if trailer_setting != "2":
-                self.waitForAbort(2)
-                continue
-            if self.get_visibility(
-                "Skin.HasSetting(TrailerPlaying)"
-            ) or self.get_visibility("Player.HasMedia"):
-                self.waitForAbort(2)
-                continue
-            if not self.get_visibility(
-                "Window.IsVisible(home) | Window.IsVisible(11121) | Control.IsVisible(54) | Control.IsVisible(55)"
-            ):
-                self.waitForAbort(1)
-                continue
-            if self.container_is_scrolling():
-                self.waitForAbort(0.2)
-                continue
-            current_dbtype = self.get_infolabel("ListItem.DBType")
-            if current_dbtype in ["season", "episode"]:
-                self.waitForAbort(0.5)
-                continue
-            current_imdb_id = self.get_infolabel("ListItem.IMDBNumber")
-            if not current_imdb_id or not current_imdb_id.startswith("tt"):
-                self.last_imdb_id = None
-                self.waitForAbort(0.2)
-                continue
-            container_updating = self.get_visibility(f"Container.IsUpdating")
-            wait_interval = self.get_infolabel("Skin.String(waitInterval)")
-            wait_times = {
-                "0": 3,
-                "1": 5,
-                "2": 7,
-                "3": 9,
-                "4": 11,
-                "5": 13,
-                "6": 15,
-                "7": 20,
-                "8": 25,
-                "9": 30,
-            }
-            wait_time = wait_times.get(wait_interval, 5)
-            if not container_updating:
-                self.last_imdb_id = current_imdb_id
-                wait_start_time = time.time()
-                interrupted = False
-                while time.time() - wait_start_time < wait_time:
-                    controls_visible = self.get_visibility(
-                        "ControlGroup(9000).HasFocus | Control.HasFocus(6130) | Control.HasFocus(6131) | Control.HasFocus(5199) | Control.HasFocus(531)"
-                    )
-                    if (
-                        self.get_infolabel("ListItem.IMDBNumber") != current_imdb_id
-                        or controls_visible
-                    ):
-                        interrupted = True
-                        break
-                    self.waitForAbort(0.2)
-                if not interrupted:
-                    play_trailer()
-            self.waitForAbort(2)
 
     def image_monitor(self):
         while not self.abortRequested():

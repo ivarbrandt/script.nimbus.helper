@@ -74,9 +74,10 @@ def routing():
         from modules.custom_actions import set_image
 
         return set_image()
-    
+
     if mode == "capture_user_key":
         from modules.custom_actions import capture_user_key
+
         return capture_user_key()
 
     if mode == "modify_keymap":
@@ -103,6 +104,16 @@ def routing():
         from modules.custom_actions import set_blursaturation
 
         return set_blursaturation()
+
+    if mode == "set_autoendplaybackdelay":
+        from modules.custom_actions import set_autoendplaybackdelay
+
+        return set_autoendplaybackdelay()
+
+    if mode == "check_ratings":
+        from modules.custom_actions import check_ratings
+
+        return check_ratings()
 
     if mode == "clear_image_cache":
         from modules.helper import clear_image_cache

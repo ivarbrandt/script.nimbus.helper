@@ -6,6 +6,7 @@ from threading import Timer
 KEYMAP_LOCATION = "special://userdata/keymaps/"
 POSSIBLE_KEYMAP_NAMES = ["gen.xml", "keyboard.xml", "keymap.xml"]
 
+
 def set_image():
     image_file = xbmcgui.Dialog().browse(
         2, "Choose Custom Background Image", "network", ".jpg|.png|.bmp", False, False
@@ -16,18 +17,20 @@ def set_image():
 
 def fix_black_screen():
     if xbmc.getCondVisibility("Skin.HasSetting(TrailerPlaying)"):
-        xbmc.executebuiltin("Skin.ToggleSetting(TrailerPlaying)")
-        
+        xbmc.executebuiltin("Skin.Reset(TrailerPlaying)")
+
+
 def set_blurradius():
-    current_value = xbmc.getInfoLabel('Skin.String(BlurRadius)') or "40"
+    current_value = xbmc.getInfoLabel("Skin.String(BlurRadius)") or "40"
     dialog = xbmcgui.Dialog()
     value = dialog.numeric(0, "Enter blur radius value", current_value)
     if value == "":
         value = "40"
     xbmc.executebuiltin(f"Skin.SetString(BlurRadius,{value})")
 
+
 def set_blursaturation():
-    current_value = xbmc.getInfoLabel('Skin.String(BlurSaturation)') or "2.5"
+    current_value = xbmc.getInfoLabel("Skin.String(BlurSaturation)") or "2.5"
     keyboard = xbmc.Keyboard(current_value, "Enter blur saturation value")
     keyboard.doModal()
     if keyboard.isConfirmed():
@@ -36,12 +39,27 @@ def set_blursaturation():
             text = "2.5"
         xbmc.executebuiltin(f"Skin.SetString(BlurSaturation,{text})")
 
+
+def set_autoendplaybackdelay():
+    current_value = xbmc.getInfoLabel("Skin.String(PlaybackDelayMins)") or "30"
+    dialog = xbmcgui.Dialog()
+    value_mins = dialog.numeric(0, "Enter delay in minutes", current_value)
+    if value_mins == "":
+        value_mins = "30"
+        value_secs = 1800
+    else:
+        value_secs = int(value_mins) * 60
+    xbmc.executebuiltin(f"Skin.SetString(PlaybackDelayMins,{value_mins})")
+    xbmc.executebuiltin(f"Skin.SetString(PlaybackDelaySecs,{value_secs})")
+
+
 # def get_current_keymap_path():
 #     for keymap_name in POSSIBLE_KEYMAP_NAMES:
 #         keymap_path = xbmcvfs.translatePath(KEYMAP_LOCATION + keymap_name)
 #         if xbmcvfs.exists(keymap_path):
 #             return keymap_path
 #     return None
+
 
 def make_backup(keymap_path):
     backup_path = f"{keymap_path}.backup"
@@ -73,11 +91,14 @@ def create_new_keymap_file():
     tree.write(new_keymap_path)
     return new_keymap_path
 
+
 class KeyListener(xbmcgui.WindowXMLDialog):
     TIMEOUT = 7
 
     def __new__(cls):
-        return super(KeyListener, cls).__new__(cls, "DialogNotification.xml", xbmcaddon.Addon().getAddonInfo('path'))
+        return super(KeyListener, cls).__new__(
+            cls, "DialogNotification.xml", xbmcaddon.Addon().getAddonInfo("path")
+        )
 
     def __init__(self):
         self.key = None
@@ -108,7 +129,6 @@ class KeyListener(xbmcgui.WindowXMLDialog):
         # Close the dialog after the countdown finishes
         self.close()
 
-
     def onAction(self, action):
         button_code = action.getButtonCode()
         action_id = action.getId()
@@ -123,8 +143,6 @@ class KeyListener(xbmcgui.WindowXMLDialog):
         xbmc.sleep(2000)
         self.close()
 
-
-
     @staticmethod
     def record_key():
         dialog = KeyListener()
@@ -135,6 +153,7 @@ class KeyListener(xbmcgui.WindowXMLDialog):
         key = dialog.key
         del dialog
         return key
+
 
 # Function to use the key listener
 def capture_user_key():
@@ -149,6 +168,7 @@ def capture_user_key():
 
     return captured_key
 
+
 def modify_keymap():
     keymap_paths = get_all_existing_keymap_paths()
     if not keymap_paths:
@@ -162,7 +182,7 @@ def modify_keymap():
     setting_value = xbmc.getInfoLabel("Skin.String(trailerSetting)")
 
     for keymap_path in keymap_paths:
-        if setting_value == '1':
+        if setting_value == "1":
             make_backup(keymap_path)
             tree = ET.parse(keymap_path)
             root = tree.getroot()
@@ -171,7 +191,7 @@ def modify_keymap():
             found = False
             for key_tag in root.findall(".//key"):
                 if key_tag.text == "RunScript(script.nimbus.helper, mode=play_trailer)":
-                    key_tag.set('id', captured_key)
+                    key_tag.set("id", captured_key)
                     found = True
                     break
 
@@ -183,16 +203,23 @@ def modify_keymap():
                 keyboard_tag = global_tag.find("keyboard")
                 if keyboard_tag is None:
                     keyboard_tag = ET.SubElement(global_tag, "keyboard")
-                ET.SubElement(keyboard_tag, "key", id=captured_key).text = "RunScript(script.nimbus.helper, mode=play_trailer)"
+                ET.SubElement(keyboard_tag, "key", id=captured_key).text = (
+                    "RunScript(script.nimbus.helper, mode=play_trailer)"
+                )
 
-            pretty_xml = minidom.parseString(ET.tostring(root, 'utf-8')).toprettyxml(indent="  ")
+            pretty_xml = minidom.parseString(ET.tostring(root, "utf-8")).toprettyxml(
+                indent="  "
+            )
             with xbmcvfs.File(keymap_path, "w") as xml_file:
-                xml_file.write("\n".join([line for line in pretty_xml.split("\n") if line.strip()]))
+                xml_file.write(
+                    "\n".join([line for line in pretty_xml.split("\n") if line.strip()])
+                )
 
         else:
             restore_from_backup(keymap_path)
 
     xbmc.executebuiltin("Action(reloadkeymaps)")
+
 
 # def modify_keymap():
 #     keymap_paths = get_all_existing_keymap_paths()
