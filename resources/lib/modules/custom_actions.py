@@ -30,13 +30,13 @@ def set_blurradius():
 
 
 def set_blursaturation():
-    current_value = xbmc.getInfoLabel("Skin.String(BlurSaturation)") or "2.5"
+    current_value = xbmc.getInfoLabel("Skin.String(BlurSaturation)") or "1.5"
     keyboard = xbmc.Keyboard(current_value, "Enter blur saturation value")
     keyboard.doModal()
     if keyboard.isConfirmed():
         text = keyboard.getText()
         if text == "":
-            text = "2.5"
+            text = "1.5"
         xbmc.executebuiltin(f"Skin.SetString(BlurSaturation,{text})")
 
 

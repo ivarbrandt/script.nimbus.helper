@@ -10,7 +10,7 @@ from modules import xmls
 dialog = xbmcgui.Dialog()
 window = xbmcgui.Window(10000)
 Listitem = xbmcgui.ListItem
-max_widgets = 100
+max_widgets = 50
 
 settings_path = xbmcvfs.translatePath(
     "special://profile/addon_data/script.nimbus.helper/"
@@ -81,7 +81,7 @@ main_include_dict = {
 }
 widget_types = (
     ("Poster", "WidgetListPoster"),
-    ("Square", "WidgetListSquare"),
+    ("Square", "WidgetListCategory"),
 )
 default_path = "addons://sources/video"
 
