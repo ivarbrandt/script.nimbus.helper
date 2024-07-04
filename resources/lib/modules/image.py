@@ -78,7 +78,7 @@ class ImageBlur:
                 touch_file(targetfile)
             else:
                 img = _openimage(self.image, ADDON_DATA_IMG_PATH, filename)
-                img.thumbnail((200, 200), Image.ANTIALIAS)
+                img.thumbnail((300, 300), Image.ANTIALIAS)
                 img = img.convert("RGB")
                 img = img.filter(ImageFilter.GaussianBlur(self.radius))
 
