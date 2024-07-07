@@ -10,13 +10,14 @@ import xbmcaddon
 import xbmcvfs
 import os
 from PIL import ImageFilter, Image, ImageOps, ImageEnhance
+import colorsys
 from .helper import *
 
 #################################################################################################
 
 BLUR_CONTAINER = xbmc.getInfoLabel("Skin.String(BlurContainer)") or 100000
 BLUR_RADIUS = xbmc.getInfoLabel("Skin.String(BlurRadius)") or "40"
-BLUR_SATURATION = xbmc.getInfoLabel("Skin.String(BlurSaturation)") or "1.0"
+BLUR_SATURATION = xbmc.getInfoLabel("Skin.String(BlurSaturation)") or "1.5"
 OLD_IMAGE = ""
 
 #################################################################################################
@@ -61,8 +62,8 @@ class ImageBlur:
                 self.avgcolor = self.color()
 
                 winprop(prop + "_blurred", self.filepath)
-                winprop(prop + "_color", self.avgcolor)
                 winprop(prop + "_color_noalpha", self.avgcolor[2:])
+                set_avgcolor_prop(prop + "_color", self.avgcolor)
 
     def __str__(self):
         return self.filepath, self.avgcolor
@@ -78,7 +79,7 @@ class ImageBlur:
                 touch_file(targetfile)
             else:
                 img = _openimage(self.image, ADDON_DATA_IMG_PATH, filename)
-                img.thumbnail((300, 300), Image.ANTIALIAS)
+                img.thumbnail((300, 300), Image.LANCZOS)
                 img = img.convert("RGB")
                 img = img.filter(ImageFilter.GaussianBlur(self.radius))
 
@@ -86,7 +87,8 @@ class ImageBlur:
                     converter = ImageEnhance.Color(img)
                     img = converter.enhance(self.saturation)
 
-                img.save(targetfile)
+                with open(targetfile, "wb") as f:
+                    img.save(f, "PNG")
 
             return targetfile
 
@@ -97,20 +99,28 @@ class ImageBlur:
     """
 
     def color(self):
-        imagecolor = "FFF0F0F0"
+        default_color = "FFF0F0F0"
+        min_brightness = 0.7  # Adjust this value to set the minimum brightness
 
         try:
-            img = Image.open(self.filepath)
-            imgResize = img.resize((1, 1), Image.ANTIALIAS)
-            col = imgResize.getpixel((0, 0))
-            imagecolor = "FF%s%s%s" % (
-                format(col[0], "02x"),
-                format(col[1], "02x"),
-                format(col[2], "02x"),
-            )
+            with Image.open(self.filepath) as img:
+                img_resize = img.resize((1, 1), Image.LANCZOS)
+                col = img_resize.getpixel((0, 0))
 
-        except:
-            pass
+            # Convert RGB to HSV
+            h, s, v = colorsys.rgb_to_hsv(col[0] / 255, col[1] / 255, col[2] / 255)
+
+            # Adjust brightness if it's too low
+            if v < min_brightness:
+                v = min_brightness
+
+            # Convert back to RGB
+            r, g, b = [int(x * 255) for x in colorsys.hsv_to_rgb(h, s, v)]
+
+            imagecolor = f"FF{r:02x}{g:02x}{b:02x}"
+        except Exception as e:
+            print(f"Error processing image: {e}")
+            imagecolor = default_color
 
         return imagecolor
 
@@ -142,29 +152,23 @@ def _openimage(image, targetpath, filename):
 
     for i in range(1, 4):
         try:
-            """Try to get cached image at first"""
             for cache in cached_files:
                 if xbmcvfs.exists(cache):
                     try:
-                        img = Image.open(xbmcvfs.translatePath(cache))
-                        return img
-
+                        with Image.open(xbmcvfs.translatePath(cache)) as img:
+                            return img.copy()  # Return a copy of the image
                     except Exception as error:
                         xbmc.log(
                             "Image error: Could not open cached image --> %s" % error, 2
                         )
 
-            """ Skin images will be tried to be accessed directly. For all other ones
-                the source will be copied to the addon_data folder to get access.
-            """
             if xbmc.skinHasImage(image):
                 if not image.startswith("special://skin"):
                     image = os.path.join("special://skin/media/", image)
 
-                try:  # in case image is packed in textures.xbt
-                    img = Image.open(xbmcvfs.translatePath(image))
-                    return img
-
+                try:
+                    with Image.open(xbmcvfs.translatePath(image)) as img:
+                        return img.copy()  # Return a copy of the image
                 except Exception:
                     return ""
 
@@ -173,8 +177,8 @@ def _openimage(image, targetpath, filename):
                 if not xbmcvfs.exists(targetfile):
                     xbmcvfs.copy(image, targetfile)
 
-                img = Image.open(targetfile)
-                return img
+                with Image.open(targetfile) as img:
+                    return img.copy()  # Return a copy of the image
 
         except Exception as error:
             xbmc.log(

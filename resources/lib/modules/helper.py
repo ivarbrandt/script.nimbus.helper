@@ -57,6 +57,40 @@ def winprop(key, value=None, clear=False, window_id=10000):
                 result = result in ("true", "1")
 
         return result
+    
+def set_avgcolor_prop(key, value=None, clear=False, window_id=10000):
+    window = xbmcgui.Window(window_id)
+
+    # Check if current window is home or 1121
+    is_correct_window = xbmc.getCondVisibility("[Window.IsActive(home) + !ControlGroup(15000).HasFocus] | Window.IsActive(1121)")
+
+    if not is_correct_window:
+        return  # Do nothing if not in home or 1121 window
+
+    if clear:
+        window.clearProperty(key.replace(".json", "").replace(".bool", ""))
+
+    elif value is not None:
+        if key.endswith(".json"):
+            key = key.replace(".json", "")
+            value = json.dumps(value)
+
+        elif key.endswith(".bool"):
+            key = key.replace(".bool", "")
+            value = "true" if value else "false"
+
+        window.setProperty(key, value)
+
+    else:
+        result = window.getProperty(key.replace(".json", "").replace(".bool", ""))
+
+        if result:
+            if key.endswith(".json"):
+                result = json.loads(result)
+            elif key.endswith(".bool"):
+                result = result in ("true", "1")
+
+        return result
 
 
 def calculate_cache_size(path=ADDON_DATA_IMG_PATH):
