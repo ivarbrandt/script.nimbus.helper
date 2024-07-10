@@ -12,7 +12,7 @@ def set_image():
         2, "Choose Custom Background Image", "network", ".jpg|.png|.bmp", False, False
     )
     if image_file:
-        xbmc.executebuiltin("Skin.SetString(CustomBackground,%s)" % image_file)
+        xbmc.executebuiltin("Skin.SetString(NimbusCustomBackground,%s)" % image_file)
 
 
 def fix_black_screen():

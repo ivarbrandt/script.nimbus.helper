@@ -180,18 +180,21 @@ class MDbListAPI:
 
 
 def play_trailer():
-    if not xbmc.getCondVisibility(
-        "String.IsEmpty(Window.Property(nimbus.trailer_ready))"
-    ):
-        trailer_source = xbmc.getInfoLabel("Skin.String(TrailerSource)")
-        play_url = None
-        if trailer_source == "0":
-            play_url = xbmc.getInfoLabel("ListItem.Trailer")
-        elif trailer_source == "1":
-            play_url = xbmc.getInfoLabel("Skin.String(TrailerPlaybackURL)")
-        if play_url:
-            xbmc.executebuiltin("Skin.SetString(TrailerPlaying, true)")
-            xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
+    if not xbmc.getCondVisibility("String.IsEmpty(Window.Property(nimbus.trailer_ready))"):
+        is_episode = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,episode)")
+        is_season = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,season)")
+        if not (is_episode or is_season):
+            trailer_source = xbmc.getInfoLabel("Skin.String(TrailerSource)")
+            play_url = None
+            if trailer_source == "0":
+                play_url = xbmc.getInfoLabel("ListItem.Trailer")
+            elif trailer_source == "1":
+                play_url = xbmc.getInfoLabel("Skin.String(TrailerPlaybackURL)")
+            if play_url:
+                xbmc.executebuiltin("Skin.SetString(TrailerPlaying, true)")
+                xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
+        # else:
+        #     xbmc.executebuiltin("Notification(No Trailer,Trailers are not available for episodes or seasons,3000)")
 
 
 def set_api_key():
