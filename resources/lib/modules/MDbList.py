@@ -192,9 +192,10 @@ def play_trailer():
                 play_url = xbmc.getInfoLabel("Skin.String(TrailerPlaybackURL)")
             if play_url:
                 xbmc.executebuiltin("Skin.SetString(TrailerPlaying, true)")
-                xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
-        # else:
-        #     xbmc.executebuiltin("Notification(No Trailer,Trailers are not available for episodes or seasons,3000)")
+                if xbmc.getCondVisibility("Control.IsVisible(50)"):
+                    xbmc.executebuiltin(f"PlayMedia({play_url},0,noresume)")
+                else:
+                    xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
 
 
 def set_api_key():

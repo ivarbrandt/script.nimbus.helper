@@ -124,3 +124,8 @@ def routing():
         from modules.helper import calculate_cache_size
 
         return calculate_cache_size()
+    
+    if mode == "set_widget_count":
+        from modules.custom_actions import set_widget_count
+
+        return set_widget_count()
