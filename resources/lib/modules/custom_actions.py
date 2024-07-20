@@ -7,6 +7,22 @@ import sys
 KEYMAP_LOCATION = "special://userdata/keymaps/"
 POSSIBLE_KEYMAP_NAMES = ["gen.xml", "keyboard.xml", "keymap.xml"]
 
+def show_changelog():
+    skin_addon = xbmcaddon.Addon('skin.nimbus')
+    skin_name = skin_addon.getAddonInfo('name')
+    skin_version = skin_addon.getAddonInfo('version')
+    header = f"CHANGELOG: {skin_name} v{skin_version}"
+    changelog_path = xbmcvfs.translatePath("special://skin/nimbuschangelog.txt")
+    with xbmcvfs.File(changelog_path) as file:
+        changelog_text = file.read()
+    if isinstance(changelog_text, bytes):
+        changelog_text = changelog_text.decode('utf-8')
+    separator = "_" * 100
+    changelog_paragraphs = changelog_text.split('\n\n')
+    changelog_with_separators = f"\n{separator}\n\n".join(changelog_paragraphs)
+    dialog = xbmcgui.Dialog()
+    dialog.textviewer(header, changelog_with_separators)
+
 
 def set_widget_count():
     if len(sys.argv) >= 3:
@@ -22,11 +38,16 @@ def set_widget_count():
 
 
 def set_image():
+    last_path = xbmc.getInfoLabel('Skin.String(LastImagePath)')
     image_file = xbmcgui.Dialog().browse(
-        2, "Choose Custom Background Image", "network", ".jpg|.png|.bmp", False, False
+        2, "Choose Custom Background Image", 
+        "files" if last_path else "network", 
+        ".jpg|.png|.bmp",
+        False, False, last_path
     )
     if image_file:
-        xbmc.executebuiltin("Skin.SetString(NimbusCustomBackground,%s)" % image_file)
+        xbmc.executebuiltin(f"Skin.SetString(LastImagePath,{image_file})")
+        xbmc.executebuiltin(f"Skin.SetString(NimbusCustomBackground,{image_file})")
 
 
 def fix_black_screen():
