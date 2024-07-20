@@ -176,8 +176,8 @@ class Service(xbmc.Monitor):
                 self.waitForAbort(15)
                 continue
             if self.get_visibility("Skin.HasSetting(Enable.BackgroundBlur)"):
-                radius = self.get_infolabel("Skin.String(BlurRadius)") or "40"
-                saturation = self.get_infolabel("Skin.String(BlurSaturation)") or "2.0"
+                radius = self.get_infolabel("Skin.String(BlurRadius)") or "30"
+                saturation = self.get_infolabel("Skin.String(BlurSaturation)") or "1.5"
                 self.blur(radius=radius, saturation=saturation)
                 self.waitForAbort(0.2)
             else:

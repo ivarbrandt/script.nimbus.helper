@@ -17,7 +17,7 @@ from .helper import *
 #################################################################################################
 
 BLUR_CONTAINER = xbmc.getInfoLabel("Skin.String(BlurContainer)") or 100000
-BLUR_RADIUS = xbmc.getInfoLabel("Skin.String(BlurRadius)") or "40"
+BLUR_RADIUS = xbmc.getInfoLabel("Skin.String(BlurRadius)") or "30"
 BLUR_SATURATION = xbmc.getInfoLabel("Skin.String(BlurSaturation)") or "1.5"
 OLD_IMAGE = ""
 
