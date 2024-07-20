@@ -9,7 +9,8 @@ import xbmc
 import xbmcaddon
 import xbmcvfs
 import os
-from PIL import ImageFilter, Image, ImageOps, ImageEnhance
+from PIL import ImageFilter, Image, ImageOps, ImageEnhance, ImageStat
+import math
 import colorsys
 from .helper import *
 
@@ -81,11 +82,43 @@ class ImageBlur:
                 img = _openimage(self.image, ADDON_DATA_IMG_PATH, filename)
                 img.thumbnail((200, 200), Image.LANCZOS)
                 img = img.convert("RGB")
-                img = img.filter(ImageFilter.GaussianBlur(self.radius))
 
+                # Analyze image contrast and brightness
+                contrast_level, brightness_level = self.analyze_image(img)
+
+                # Adaptive brightness reduction for very bright images
+                if brightness_level > 0.7:
+                    reducer = ImageEnhance.Brightness(img)
+                    reduction_factor = 1 - (brightness_level - 0.7) * 0.5
+                    img = reducer.enhance(reduction_factor)
+
+                # Initial color enhancement (adaptive and balanced)
+                enhancer = ImageEnhance.Color(img)
+                color_enhance_factor = 1.2 + (0.08 * (1 - contrast_level))
+                img = enhancer.enhance(color_enhance_factor)
+
+                # Multi-pass adaptive blur
+                for i in range(3):
+                    blur_radius = self.radius * (i + 1) / 3
+                    img = img.filter(ImageFilter.GaussianBlur(blur_radius))
+
+                    # Apply subtle edge preservation for high-contrast images
+                    if contrast_level > 0.5:
+                        edge_preserve = img.filter(ImageFilter.EDGE_ENHANCE_MORE)
+                        img = Image.blend(img, edge_preserve, 0.15 * contrast_level)
+
+                # Adjust contrast (adaptive)
+                contrast = ImageEnhance.Contrast(img)
+                contrast_factor = 1.04 + (0.04 * (1 - contrast_level))
+                img = contrast.enhance(contrast_factor)
+
+                # Final saturation adjustment (adaptive and balanced)
                 if self.saturation:
                     converter = ImageEnhance.Color(img)
-                    img = converter.enhance(self.saturation)
+                    saturation_factor = self.saturation * (
+                        1.05 + (0.15 * (1 - contrast_level))
+                    )
+                    img = converter.enhance(saturation_factor)
 
                 with open(targetfile, "wb") as f:
                     img.save(f, "PNG")
@@ -94,6 +127,22 @@ class ImageBlur:
 
         except Exception:
             return ""
+
+    def analyze_image(self, img):
+        stat = ImageStat.Stat(img)
+        r, g, b = stat.mean
+        rm, gm, bm = stat.stddev
+
+        # Calculate contrast level
+        contrast_level = (
+            math.sqrt(0.241 * (rm**2) + 0.691 * (gm**2) + 0.068 * (bm**2)) / 100
+        )
+        contrast_level = min(contrast_level, 1.0)
+
+        # Calculate brightness level
+        brightness_level = (r + g + b) / (3 * 255)
+
+        return contrast_level, brightness_level
 
     """ get average image color
     """

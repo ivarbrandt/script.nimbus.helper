@@ -129,3 +129,8 @@ def routing():
         from modules.custom_actions import set_widget_count
 
         return set_widget_count()
+    
+    if mode == "show_changelog":
+        from modules.custom_actions import show_changelog
+
+        return show_changelog()
