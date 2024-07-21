@@ -124,13 +124,18 @@ def routing():
         from modules.helper import calculate_cache_size
 
         return calculate_cache_size()
-    
+
     if mode == "set_widget_count":
         from modules.custom_actions import set_widget_count
 
         return set_widget_count()
-    
+
     if mode == "show_changelog":
         from modules.custom_actions import show_changelog
 
         return show_changelog()
+
+    if mode == "check_api_key_on_load":
+        from modules.MDbList import check_api_key_on_load
+
+        return check_api_key_on_load()

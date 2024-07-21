@@ -180,7 +180,9 @@ class MDbListAPI:
 
 
 def play_trailer():
-    if not xbmc.getCondVisibility("String.IsEmpty(Window.Property(nimbus.trailer_ready))"):
+    if not xbmc.getCondVisibility(
+        "String.IsEmpty(Window.Property(nimbus.trailer_ready))"
+    ):
         is_episode = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,episode)")
         is_season = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,season)")
         if not (is_episode or is_season):
@@ -198,8 +200,65 @@ def play_trailer():
                     xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
 
 
+def check_api_key(api_key):
+    api_url = "https://mdblist.com/api/"
+    params = {
+        "apikey": api_key,
+        "i": "tt0111161",
+    }
+    try:
+        response = requests.get(api_url, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        return ("valid", "ratings" in data and len(data["ratings"]) > 0)
+    except requests.RequestException:
+        return ("error", None)
+
+
+def validate_api_key(api_key, silent=True):
+    if not api_key:
+        xbmc.executebuiltin("Skin.Reset(valid_api_key)")
+        return
+    xbmc.executebuiltin("Skin.SetString(checking_api_key,true)")
+    try:
+        status, is_valid = check_api_key(api_key)
+        if status == "valid" and is_valid:
+            xbmc.executebuiltin("Skin.SetString(valid_api_key,true)")
+            if not silent:
+                xbmcgui.Dialog().notification(
+                    "Success",
+                    "Features activated",
+                    xbmcgui.NOTIFICATION_INFO,
+                    3000,
+                )
+        elif status == "valid" and not is_valid:
+            xbmc.executebuiltin("Skin.Reset(valid_api_key)")
+        else:
+            if not silent:
+                xbmcgui.Dialog().notification(
+                    "Connection Error",
+                    "Unable to reach MDbList",
+                    xbmcgui.NOTIFICATION_ERROR,
+                    3000,
+                )
+    finally:
+        xbmc.executebuiltin("Skin.Reset(checking_api_key)")
+
+
 def set_api_key():
-    keyboard = xbmc.Keyboard("", "Enter MDbList API Key")
+    current_key = xbmc.getInfoLabel("Skin.String(mdblist_api_key)")
+    keyboard = xbmc.Keyboard(current_key, "Enter MDbList API Key")
     keyboard.doModal()
-    if keyboard.isConfirmed() and keyboard.getText():
-        xbmc.executebuiltin(f"Skin.SetString(mdblist_api_key,{keyboard.getText()})")
+    if keyboard.isConfirmed():
+        new_key = keyboard.getText()
+        if not new_key:
+            xbmc.executebuiltin("Skin.Reset(mdblist_api_key)")
+            xbmc.executebuiltin("Skin.Reset(valid_api_key)")
+        else:
+            xbmc.executebuiltin(f'Skin.SetString(mdblist_api_key,"{new_key}")')
+            validate_api_key(new_key, silent=False)
+
+
+def check_api_key_on_load():
+    api_key = xbmc.getInfoLabel("Skin.String(mdblist_api_key)")
+    validate_api_key(api_key, silent=True)
