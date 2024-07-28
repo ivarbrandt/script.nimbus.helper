@@ -64,7 +64,7 @@ class ImageBlur:
 
                 winprop(prop + "_blurred", self.filepath)
                 winprop(prop + "_color_noalpha", self.avgcolor[2:])
-                set_avgcolor_prop(prop + "_color", self.avgcolor)
+                winprop(prop + "_color", self.avgcolor)
 
     def __str__(self):
         return self.filepath, self.avgcolor

@@ -2,27 +2,46 @@ import xbmc, xbmcaddon, xbmcgui, xbmcvfs
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from threading import Timer
-import sys
+import sys, re
 
 KEYMAP_LOCATION = "special://userdata/keymaps/"
 POSSIBLE_KEYMAP_NAMES = ["gen.xml", "keyboard.xml", "keymap.xml"]
 
 
 def show_changelog():
+    helper_addon = xbmcaddon.Addon("script.nimbus.helper")
+    helper_version = helper_addon.getAddonInfo("version")
     skin_addon = xbmcaddon.Addon("skin.nimbus")
-    skin_name = skin_addon.getAddonInfo("name")
     skin_version = skin_addon.getAddonInfo("version")
-    header = f"CHANGELOG: {skin_name} v{skin_version}"
+    skin_name = skin_addon.getAddonInfo("name")
     changelog_path = xbmcvfs.translatePath("special://skin/nimbuschangelog.txt")
     with xbmcvfs.File(changelog_path) as file:
         changelog_text = file.read()
     if isinstance(changelog_text, bytes):
         changelog_text = changelog_text.decode("utf-8")
-    separator = "_" * 100
-    changelog_paragraphs = changelog_text.split("\n\n")
-    changelog_with_separators = f"\n{separator}\n\n".join(changelog_paragraphs)
+    helper_pattern = r"(Nimbus Helper: Latest: v([\d.]+)) \| Installed: v.*"
+    helper_match = re.search(helper_pattern, changelog_text)
+    if helper_match:
+        latest_helper_version = helper_match.group(2)
+        installed_part = f"Installed: v{helper_version}"
+        if helper_version != latest_helper_version:
+            installed_part = f"[COLOR red][B]{installed_part}[/B][/COLOR]"
+            update_message = (
+                "\n\n[COLOR red][B]An update is available for the Nimbus Helper. "
+                "Please follow these instructions to update and ensure full continued functionality:[/B][/COLOR]"
+                "\n\n1. Go to Settings [B]»[/B] System [B]»[/B] Addons tab [B]»[/B] Manage dependencies"
+                "\n2. Find Nimbus Helper and click it"
+                "\n3. Versions [B]»[/B] Click the latest version in ivarbrandt's Repository"
+            )
+        else:
+            update_message = "\n\n[COLOR limegreen][B]Nimbus Helper up to date. No updates needed at this time.[/B][/COLOR]"
+        new_helper_info = f"{helper_match.group(1)} | {installed_part}{update_message}"
+        changelog_text = re.sub(
+            helper_pattern, new_helper_info, changelog_text, count=1
+        )
+    header = f"CHANGELOG: {skin_name} v{skin_version}"
     dialog = xbmcgui.Dialog()
-    dialog.textviewer(header, changelog_with_separators)
+    dialog.textviewer(header, changelog_text)
 
 
 def set_widget_count():

@@ -32,10 +32,14 @@ class Service(xbmc.Monitor):
         self.get_visibility = xbmc.getCondVisibility
         self.last_mediatype = ""
         self.last_imdb_id = None
+        # self.containers = [9000, 50, 700, 733]
+        # self.home_window = self.window(10000)
 
     def run(self):
         image_thread = Thread(target=self.image_monitor)
         image_thread.start()
+        # color_monitor_thread = Thread(target=self.color_monitor)
+        # color_monitor_thread.start()
         while not self.abortRequested():
             self.ratings_monitor()
             self.waitForAbort(0.2)
@@ -182,6 +186,71 @@ class Service(xbmc.Monitor):
                 self.waitForAbort(0.2)
             else:
                 self.waitForAbort(3)
+
+    # def get_current_container(self):
+    #     for container_id in self.containers:
+    #         if self.get_visibility(f"Control.HasFocus({container_id})"):
+    #             return container_id
+    #     return None 
+    
+    # # ONLY GETTING PROPERTY
+    # def color_monitor(self):
+    #     home_window = self.window(10000)
+    #     get_property = home_window.getProperty
+    #     while not self.abortRequested():
+    #         last_focused_color = get_property("LastFocusedColor")
+    #         current_color = get_property("listitem_color")
+    #         if last_focused_color != current_color:
+    #             current_container = self.get_current_container()
+    #             if current_container:
+    #                 xbmc.executebuiltin(f"SetFocus({current_container})")
+    #             home_window.setProperty("LastFocusedColor", current_color)
+    #         self.waitForAbort(0.07)
+
+    # GETTING/SETTING SETTING PROPERTY
+    # def color_monitor(self):
+    #     get_property = self.window(self.get_window_id()).getProperty
+    #     set_property = self.window(self.get_window_id()).setProperty
+    #     last_color = None
+    #     while not self.abortRequested():
+    #         current_color = get_property("listitem_color")
+    #         if current_color != last_color or not current_color:
+    #             if current_color:
+    #                 set_property("LastFocusedColor", current_color)
+    #                 last_color = current_color
+    #             current_container = self.get_current_container()
+    #             if current_container:
+    #                 xbmc.executebuiltin(f"SetFocus({current_container})")
+    #         self.waitForAbort(0.07)
+
+    # def get_current_container(self):
+    #     containers = [50, 9000, 733, 700]  # Add or remove container IDs as needed
+    #     for container_id in containers:
+    #         if self.get_visibility(f"Control.HasFocus({container_id})"):
+    #             return container_id
+    #     return None  # Return None if no visible container is found
+
+    # def color_monitor(self):
+    #     home_window = self.window(10000)  # Home window
+    #     last_color = None
+    #     while not self.abortRequested():
+    #         current_color = self.get_infolabel("Window(home).Property(listitem_color)")
+
+    #         if current_color != last_color:
+    #             # Color has changed
+    #             home_window.setProperty("LastFocusedColor", current_color)
+    #             last_color = current_color
+
+    #             # Get the current container and trigger focus change
+    #             current_container = self.get_current_container()
+    #             if current_container:
+    #                 xbmc.executebuiltin(f"SetFocus({current_container})")
+                
+    #             # Optional: Log the color change and focused container
+    #             xbmc.log(f"Color changed to: {current_color}, Focused container: {current_container}", 2)
+
+    #         # Wait for a short period before the next check
+    #         self.waitForAbort(0.1) 
 
 
 if __name__ == "__main__":

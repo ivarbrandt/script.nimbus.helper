@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import xbmc
 from xbmcgui import Window
 from xbmc import sleep, getInfoLabel
 from xbmcvfs import translatePath
@@ -45,8 +46,16 @@ def set_current_profile(skin_id, current_profile):
         json.dump(current_profile, f)
     window.setProperty("%s.current_profile" % skin_id, current_profile)
 
+def get_profile_count():
+    json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Profiles.GetProfiles", "id": 1}')
+    json_response = json.loads(json_query)
+    if 'result' in json_response and 'profiles' in json_response['result']:
+        return len(json_response['result']['profiles'])
+    return 0
 
 def check_for_profile_change(skin_id):
+    if get_profile_count() <= 1:
+        return 
     current_profile = getInfoLabel("System.ProfileName")
     saved_profile = window.getProperty("%s.current_profile" % skin_id)
     try:
@@ -62,5 +71,25 @@ def check_for_profile_change(skin_id):
     from modules.cpath_maker import remake_all_cpaths
 
     set_current_profile(skin_id, current_profile)
-    sleep(200)
+    xbmc.sleep(200)
     remake_all_cpaths(silent=True)
+
+
+# def check_for_profile_change(skin_id):
+#     current_profile = getInfoLabel("System.ProfileName")
+#     saved_profile = window.getProperty("%s.current_profile" % skin_id)
+#     try:
+#         with open(PROFILE_PATH, "r") as f:
+#             saved_profile = json.load(f)
+#     except FileNotFoundError:
+#         saved_profile = None
+#     if not saved_profile:
+#         set_current_profile(skin_id, current_profile)
+#         return
+#     if saved_profile == current_profile:
+#         return
+#     from modules.cpath_maker import remake_all_cpaths
+
+#     set_current_profile(skin_id, current_profile)
+#     sleep(200)
+#     remake_all_cpaths(silent=True)
