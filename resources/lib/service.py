@@ -21,25 +21,25 @@ video_id_pattern = re.compile(r"v=([a-zA-Z0-9_-]+)")
 
 class Service(xbmc.Monitor):
     def __init__(self):
-        xbmc.Monitor.__init__(self)
+        super().__init__()
         self.mdblist_api = MDbListAPI
         self.blur = ImageBlur
         self.last_set_imdb_id = None
-        # self.last_imdb_id_played = None
         self.window = xbmcgui.Window
         self.get_window_id = xbmcgui.getCurrentWindowId
         self.get_infolabel = xbmc.getInfoLabel
         self.get_visibility = xbmc.getCondVisibility
         self.last_mediatype = ""
         self.last_imdb_id = None
-        # self.containers = [9000, 50, 700, 733]
-        # self.home_window = self.window(10000)
+        self.color_window = xbmcgui.Window(10000)
+        self.containers = {50, 700, 733}
+        self.special_windows = {10000, 1121, 11100}
 
     def run(self):
         image_thread = Thread(target=self.image_monitor)
         image_thread.start()
-        # color_monitor_thread = Thread(target=self.color_monitor)
-        # color_monitor_thread.start()
+        color_monitor_thread = Thread(target=self.color_monitor)
+        color_monitor_thread.start()
         while not self.abortRequested():
             self.ratings_monitor()
             self.waitForAbort(0.2)
@@ -187,70 +187,41 @@ class Service(xbmc.Monitor):
             else:
                 self.waitForAbort(3)
 
-    # def get_current_container(self):
-    #     for container_id in self.containers:
-    #         if self.get_visibility(f"Control.HasFocus({container_id})"):
-    #             return container_id
-    #     return None 
-    
-    # # ONLY GETTING PROPERTY
-    # def color_monitor(self):
-    #     home_window = self.window(10000)
-    #     get_property = home_window.getProperty
-    #     while not self.abortRequested():
-    #         last_focused_color = get_property("LastFocusedColor")
-    #         current_color = get_property("listitem_color")
-    #         if last_focused_color != current_color:
-    #             current_container = self.get_current_container()
-    #             if current_container:
-    #                 xbmc.executebuiltin(f"SetFocus({current_container})")
-    #             home_window.setProperty("LastFocusedColor", current_color)
-    #         self.waitForAbort(0.07)
+    def get_current_container(self):
+        current_window = xbmcgui.getCurrentWindowId()
+        if current_window in self.special_windows:
+            if xbmc.getCondVisibility("Control.HasFocus(9000)"):
+                return 9000
+            for container_id in self.containers:
+                if xbmc.getCondVisibility(f"Control.HasFocus({container_id})"):
+                    return container_id
+        else:
+            for container_id in self.containers:
+                if xbmc.getCondVisibility(f"Control.HasFocus({container_id})"):
+                    return container_id
+        return None
 
-    # GETTING/SETTING SETTING PROPERTY
-    # def color_monitor(self):
-    #     get_property = self.window(self.get_window_id()).getProperty
-    #     set_property = self.window(self.get_window_id()).setProperty
-    #     last_color = None
-    #     while not self.abortRequested():
-    #         current_color = get_property("listitem_color")
-    #         if current_color != last_color or not current_color:
-    #             if current_color:
-    #                 set_property("LastFocusedColor", current_color)
-    #                 last_color = current_color
-    #             current_container = self.get_current_container()
-    #             if current_container:
-    #                 xbmc.executebuiltin(f"SetFocus({current_container})")
-    #         self.waitForAbort(0.07)
-
-    # def get_current_container(self):
-    #     containers = [50, 9000, 733, 700]  # Add or remove container IDs as needed
-    #     for container_id in containers:
-    #         if self.get_visibility(f"Control.HasFocus({container_id})"):
-    #             return container_id
-    #     return None  # Return None if no visible container is found
-
-    # def color_monitor(self):
-    #     home_window = self.window(10000)  # Home window
-    #     last_color = None
-    #     while not self.abortRequested():
-    #         current_color = self.get_infolabel("Window(home).Property(listitem_color)")
-
-    #         if current_color != last_color:
-    #             # Color has changed
-    #             home_window.setProperty("LastFocusedColor", current_color)
-    #             last_color = current_color
-
-    #             # Get the current container and trigger focus change
-    #             current_container = self.get_current_container()
-    #             if current_container:
-    #                 xbmc.executebuiltin(f"SetFocus({current_container})")
-                
-    #             # Optional: Log the color change and focused container
-    #             xbmc.log(f"Color changed to: {current_color}, Focused container: {current_container}", 2)
-
-    #         # Wait for a short period before the next check
-    #         self.waitForAbort(0.1) 
+    def color_monitor(self):
+        last_color = None
+        while not self.abortRequested():
+            if self.pause_services():
+                self.waitForAbort(2)
+                continue
+            if self.not_nimbus():
+                self.waitForAbort(15)
+                continue
+            if not xbmc.getCondVisibility("Skin.HasSetting(Enable.BackgroundBlur)"):
+                self.waitForAbort(2)
+                continue
+            current_color = xbmc.getInfoLabel("Window(home).Property(listitem_color)")
+            if current_color != last_color or not current_color:
+                if current_color:
+                    self.color_window.setProperty("LastFocusedColor", current_color)
+                    last_color = current_color
+                current_container = self.get_current_container()
+                if current_container:
+                    xbmc.executebuiltin(f"SetFocus({current_container})")
+            self.waitForAbort(0.05)
 
 
 if __name__ == "__main__":
