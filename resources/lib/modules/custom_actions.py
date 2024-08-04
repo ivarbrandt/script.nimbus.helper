@@ -19,6 +19,16 @@ def show_changelog():
         changelog_text = file.read()
     if isinstance(changelog_text, bytes):
         changelog_text = changelog_text.decode("utf-8")
+    changelog_text = re.sub(
+        r"\[COLOR \w+\](Version \d+\.\d+\.\d+)\[/COLOR\]",
+        f"[COLOR $VAR[MenuSelectorColor]]\\1[/COLOR]",
+        changelog_text,
+    )
+    changelog_text = re.sub(
+        r"\[COLOR \w+\](Version \$INFO\[.*?\])\[/COLOR\]",
+        f"[COLOR $VAR[MenuSelectorColor]]\\1[/COLOR]",
+        changelog_text,
+    )
     helper_pattern = r"(Nimbus Helper: Latest: v([\d.]+)) \| Installed: v.*"
     helper_match = re.search(helper_pattern, changelog_text)
     if helper_match:

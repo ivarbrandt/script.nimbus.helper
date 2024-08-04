@@ -181,7 +181,7 @@ class MDbListAPI:
 
 def play_trailer():
     if not xbmc.getCondVisibility(
-        "String.IsEmpty(Window.Property(nimbus.trailer_ready))"
+        "String.IsEmpty(Window(Home).Property(nimbus.trailer_ready))"
     ):
         is_episode = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,episode)")
         is_season = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,season)")
