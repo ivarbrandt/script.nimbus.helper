@@ -147,26 +147,79 @@ class ImageBlur:
     """ get average image color
     """
 
+    # def color(self):
+    #     default_color = "FFF0F0F0"
+    #     min_brightness = 0.7  # Adjust this value to set the minimum brightness
+
+    #     try:
+    #         with Image.open(self.filepath) as img:
+    #             img_resize = img.resize((1, 1), Image.LANCZOS)
+    #             col = img_resize.getpixel((0, 0))
+
+    #         # Convert RGB to HSV
+    #         h, s, v = colorsys.rgb_to_hsv(col[0] / 255, col[1] / 255, col[2] / 255)
+
+    #         # Adjust brightness if it's too low
+    #         if v < min_brightness:
+    #             v = min_brightness
+
+    #         # Convert back to RGB
+    #         r, g, b = [int(x * 255) for x in colorsys.hsv_to_rgb(h, s, v)]
+
+    #         imagecolor = f"FF{r:02x}{g:02x}{b:02x}"
+    #     except Exception as e:
+    #         print(f"Error processing image: {e}")
+    #         imagecolor = default_color
+
+    #     return imagecolor
+
+    """ get dominant image color
+    """
+    
     def color(self):
         default_color = "FFF0F0F0"
-        min_brightness = 0.7  # Adjust this value to set the minimum brightness
+        min_brightness = 0.65  # Minimum brightness value
+        brightness_boost = 0.45  # Amount to boost brightness for dark colors
 
         try:
             with Image.open(self.filepath) as img:
-                img_resize = img.resize((1, 1), Image.LANCZOS)
-                col = img_resize.getpixel((0, 0))
+                # Resize image for faster processing
+                img_resize = img.resize((50, 50))
+                
+                # Convert image to RGB mode if it's not
+                if img_resize.mode != 'RGB':
+                    img_resize = img_resize.convert('RGB')
 
-            # Convert RGB to HSV
-            h, s, v = colorsys.rgb_to_hsv(col[0] / 255, col[1] / 255, col[2] / 255)
+                # Get all pixels
+                pixels = list(img_resize.getdata())
 
-            # Adjust brightness if it's too low
-            if v < min_brightness:
-                v = min_brightness
+                # Create color bins (simplify colors)
+                color_bins = {}
+                for pixel in pixels:
+                    # Simplify RGB values to reduce color space
+                    simple_color = (pixel[0]//10, pixel[1]//10, pixel[2]//10)
+                    if simple_color in color_bins:
+                        color_bins[simple_color] += 1
+                    else:
+                        color_bins[simple_color] = 1
 
-            # Convert back to RGB
-            r, g, b = [int(x * 255) for x in colorsys.hsv_to_rgb(h, s, v)]
+                # Find the most common color
+                dominant_color = max(color_bins, key=color_bins.get)
+                
+                # Scale the color back up
+                r, g, b = [x * 10 for x in dominant_color]
 
-            imagecolor = f"FF{r:02x}{g:02x}{b:02x}"
+                # Convert to HSV for brightness adjustment
+                h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+
+                # Apply brightness boost if below minimum brightness
+                if v < min_brightness:
+                    v = min(v + brightness_boost, 1.0)  # Ensure we don't exceed 1.0
+
+                # Convert back to RGB
+                r, g, b = [int(x * 255) for x in colorsys.hsv_to_rgb(h, s, v)]
+
+                imagecolor = f"FF{r:02x}{g:02x}{b:02x}"
         except Exception as e:
             print(f"Error processing image: {e}")
             imagecolor = default_color
