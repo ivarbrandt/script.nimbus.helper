@@ -38,7 +38,7 @@ def show_changelog():
             installed_part = f"[COLOR red][B]{installed_part}[/B][/COLOR]"
             update_message = (
                 "\n\n[COLOR red][B]An update is available for the Nimbus Helper. "
-                "Please follow these instructions to update and ensure full continued functionality:[/B][/COLOR]"
+                "Please follow these instructions to update and get the latest features and ensure full continued functionality:[/B][/COLOR]"
                 "\n\n1. Go to Settings [B]»[/B] System [B]»[/B] Addons tab [B]»[/B] Manage dependencies"
                 "\n2. Find Nimbus Helper and click it"
                 "\n3. Versions [B]»[/B] Click the latest version in ivarbrandt's Repository"

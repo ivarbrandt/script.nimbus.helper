@@ -176,16 +176,19 @@ class MDbListAPI:
             if not trailer:
                 trailer = ""
             data["trailer"] = trailer
+            data['belongs_to_collection'] = 'true' if next((i for i in json_data.get("keywords", []) if i['name'] == 'belongs-to-collection'), None) else 'false'
+            data['first_in_collection'] = 'true' if next((i for i in json_data.get("keywords", []) if i['name'] == 'first-in-collection'), None) else 'false'
+            data['collection_follow_up'] = 'true' if next((i for i in json_data.get("keywords", []) if i['name'] == 'collection-follow-up'), None) else 'false'
         return data
 
 
 def play_trailer():
-    if not xbmc.getCondVisibility(
-        "String.IsEmpty(Window(Home).Property(nimbus.trailer_ready))"
-    ):
+    if not xbmc.getCondVisibility("String.IsEmpty(Window(Home).Property(nimbus.trailer_ready))"):
         is_episode = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,episode)")
         is_season = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,season)")
-        if not (is_episode or is_season):
+        if xbmc.getCondVisibility("Control.IsVisible(500) | Control.IsVisible(501)"):
+            xbmc.executebuiltin("Notification(Trailer Playback, Trailer playback is not available in this view, 3000)")
+        elif not (is_episode or is_season):
             trailer_source = xbmc.getInfoLabel("Skin.String(TrailerSource)")
             play_url = None
             if trailer_source == "0":

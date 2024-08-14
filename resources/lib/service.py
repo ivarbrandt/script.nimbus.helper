@@ -112,14 +112,16 @@ class Service(xbmc.Monitor):
                 self.waitForAbort(10)
                 continue
             if not self.get_visibility(
-                "Window.IsVisible(videos) | Window.IsVisible(home) | Window.IsVisible(11121) | Window.IsActive(movieinformation)"
+                "Window.IsVisible(videos) | Window.IsVisible(home) | Window.IsVisible(11121) | Window.IsActive(movieinformation) | [[Window.IsVisible(videoosd) | Window.IsVisible(seekbar)] + Skin.HasSetting(Enable.DetailedOSD) + !Skin.HasSetting(Disable.OSDRatings)]"
             ):
                 self.waitForAbort(2)
                 continue
             if self.container_is_scrolling():
                 self.waitForAbort(0.2)
                 continue
-            imdb_id = self.get_infolabel("ListItem.IMDBNumber")
+            imdb_id = self.get_infolabel("ListItem.IMDBNumber") or self.get_infolabel(
+                "VideoPlayer.IMDBNumber"
+            )
             set_property = self.home_window.setProperty
             get_property = self.home_window.getProperty
             clear_property = self.home_window.clearProperty
