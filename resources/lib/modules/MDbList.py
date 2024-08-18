@@ -107,6 +107,18 @@ class MDbListAPI:
         json_data = response.json()
         ratings = json_data.get("ratings", [])
         data = {}
+        is_certified_fresh = (
+            "true"
+            if next(
+                (
+                    i
+                    for i in json_data.get("keywords", [])
+                    if i["name"] == "certified-fresh"
+                ),
+                None,
+            )
+            else "false"
+        )
         for rating in ratings:
             source = rating.get("source")
             value = rating.get("value")
@@ -146,7 +158,7 @@ class MDbListAPI:
             elif source == "tomatoes":
                 if value is not None:
                     data["tomatoMeter"] = str(value)
-                    if value > 74:
+                    if is_certified_fresh == "true":
                         data["tomatoImage"] = IMAGE_PATH + "rtcertified.png"
                     elif value > 59:
                         data["tomatoImage"] = IMAGE_PATH + "rtfresh.png"
@@ -176,18 +188,55 @@ class MDbListAPI:
             if not trailer:
                 trailer = ""
             data["trailer"] = trailer
-            data['belongs_to_collection'] = 'true' if next((i for i in json_data.get("keywords", []) if i['name'] == 'belongs-to-collection'), None) else 'false'
-            data['first_in_collection'] = 'true' if next((i for i in json_data.get("keywords", []) if i['name'] == 'first-in-collection'), None) else 'false'
-            data['collection_follow_up'] = 'true' if next((i for i in json_data.get("keywords", []) if i['name'] == 'collection-follow-up'), None) else 'false'
+            data["first_in_collection"] = (
+                "true"
+                if next(
+                    (
+                        i
+                        for i in json_data.get("keywords", [])
+                        if i["name"] == "first-in-collection"
+                    ),
+                    None,
+                )
+                else "false"
+            )
+            data["collection_follow_up"] = (
+                "true"
+                if next(
+                    (
+                        i
+                        for i in json_data.get("keywords", [])
+                        if i["name"] == "collection-follow-up"
+                    ),
+                    None,
+                )
+                else "false"
+            )
+            data["belongs_to_collection"] = (
+                "true"
+                if next(
+                    (
+                        i
+                        for i in json_data.get("keywords", [])
+                        if i["name"] == "belongs-to-collection"
+                    ),
+                    None,
+                )
+                else "false"
+            )
         return data
 
 
 def play_trailer():
-    if not xbmc.getCondVisibility("String.IsEmpty(Window(Home).Property(nimbus.trailer_ready))"):
+    if not xbmc.getCondVisibility(
+        "String.IsEmpty(Window(Home).Property(nimbus.trailer_ready))"
+    ):
         is_episode = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,episode)")
         is_season = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,season)")
         if xbmc.getCondVisibility("Control.IsVisible(500) | Control.IsVisible(501)"):
-            xbmc.executebuiltin("Notification(Trailer Playback, Trailer playback is not available in this view, 3000)")
+            xbmc.executebuiltin(
+                "Notification(Trailer Playback, Trailer playback is not available in this view, 3000)"
+            )
         elif not (is_episode or is_season):
             trailer_source = xbmc.getInfoLabel("Skin.String(TrailerSource)")
             play_url = None
@@ -241,7 +290,7 @@ def validate_api_key(api_key, silent=True):
                 xbmcgui.Dialog().notification(
                     "Connection Error",
                     "Unable to reach MDbList",
-                    xbmcgui.NOTIFICATION_ERROR,
+                    xbmcgui.NOTIFICATION_INFO,
                     3000,
                 )
     finally:

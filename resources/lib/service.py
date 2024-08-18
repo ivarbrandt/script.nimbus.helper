@@ -14,6 +14,9 @@ empty_ratings = {
     "imdbRating": "",
     "popularRating": "",
     "tmdbRating": "",
+    "first_in_collection": "",
+    "collection_follow_up": "",
+    "belongs_to_collection": "",
 }
 
 video_id_pattern = re.compile(r"v=([a-zA-Z0-9_-]+)")
