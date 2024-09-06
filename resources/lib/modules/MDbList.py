@@ -246,7 +246,9 @@ def play_trailer():
                 play_url = xbmc.getInfoLabel("Skin.String(TrailerPlaybackURL)")
             if play_url:
                 xbmc.executebuiltin("Skin.SetString(TrailerPlaying, true)")
-                if xbmc.getCondVisibility("Control.IsVisible(50)"):
+                if xbmc.getCondVisibility(
+                    "Control.IsVisible(50) | Control.IsVisible(51)"
+                ):
                     xbmc.executebuiltin(f"PlayMedia({play_url},0,noresume)")
                 else:
                     xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
