@@ -54,6 +54,19 @@ def show_changelog():
     dialog.textviewer(header, changelog_text)
 
 
+def set_widget_count():
+    if len(sys.argv) >= 3:
+        list_id = sys.argv[2]
+        if len(list_id) in (4, 5):
+            container_id = (
+                f"{list_id[:2]}001" if len(list_id) == 5 else f"{list_id[0]}001"
+            )
+            num_items_str = xbmc.getInfoLabel(f"Container({container_id}).NumItems")
+            if num_items_str and num_items_str.isdigit():
+                num_widgets = int(num_items_str) * 2 - 1
+                xbmc.executebuiltin(f"Skin.SetString(TotalWidgetCount,{num_widgets})")
+
+
 def set_image():
     last_path = xbmc.getInfoLabel("Skin.String(LastImagePath)")
     image_file = xbmcgui.Dialog().browse(

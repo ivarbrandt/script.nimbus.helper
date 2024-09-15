@@ -16,20 +16,6 @@ media_xml_body = '''
       <param name="list_id" value="{cpath_list_id}"/>
     </include>'''
 
-stacked_media_xml_body = ''' 
-    <include content="WidgetListCategoryStacked">
-      <param name="content_path" value="{cpath_path}"/>
-      <param name="widget_header" value="{cpath_header}"/>
-      <param name="widget_target" value="videos"/>
-      <param name="list_id" value="{cpath_list_id}"/>
-    </include>
-    <include content="{cpath_type}">
-      <param name="content_path" value="$INFO[Window(Home).Property(nimbus.{cpath_list_id}.path)]"/>
-      <param name="widget_header" value="$INFO[Window(Home).Property(nimbus.{cpath_list_id}.label)]"/>
-      <param name="widget_target" value="videos"/>
-      <param name="list_id" value="{cpath_list_id}1"/>
-    </include>'''
-
 history_xml_body = '''
     <item>
       <label>$NUMBER[{spath}]</label>

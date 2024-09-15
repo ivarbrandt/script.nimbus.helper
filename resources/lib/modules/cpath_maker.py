@@ -82,8 +82,7 @@ main_include_dict = {
 widget_types = (
     ("Poster", "WidgetListPoster"),
     ("Landscape", "WidgetListLandscape"),
-    ("Category", "WidgetListCategory"),
-    ("Square", "WidgetListSquare"),
+    ("Square", "WidgetListCategory"),
 )
 default_path = "addons://sources/video"
 
@@ -96,9 +95,6 @@ class CPaths:
         self.media_type, self.path_type = self.cpath_setting.split(".")
         self.main_include = main_include_dict[self.media_type][self.path_type]
         self.refresh_cpaths, self.last_cpath = False, None
-
-    def get_skin_variable(self, variable_name):
-        return xbmc.getInfoLabel(f"$VAR[{variable_name}]")
 
     def connect_database(self):
         if not xbmcvfs.exists(settings_path):
@@ -184,10 +180,9 @@ class CPaths:
         results = files_get_directory(file)
         hide_busy_dialog()
         list_items = []
-        label_color = self.get_skin_variable("FocusedTextColor")
         if file != default_path:
             listitem = Listitem(
-                "Use [COLOR {}][B]%s[/B][/COLOR] as path".format(label_color) % label,
+                "Use [COLOR dodgerblue]%s[/COLOR] as path" % label,
                 "Set as path",
                 offscreen=True,
             )
@@ -305,12 +300,7 @@ class CPaths:
                 v["cpath_type"],
                 v["cpath_label"],
             )
-            body = (
-                xmls.stacked_media_xml_body
-                if "Stacked" in cpath_label
-                else xmls.media_xml_body
-            )
-            body = body.format(
+            body = xmls.media_xml_body.format(
                 cpath_type=cpath_type,
                 cpath_path=cpath_path,
                 cpath_header=cpath_header,
@@ -405,11 +395,9 @@ class CPaths:
         for widget_type, widget_list_type in widget_types:
             if widget_list_type == cpath_type:
                 return widget_type
-            elif "Stacked" in cpath_type and widget_list_type in cpath_type:
-                return widget_type
         return None
 
-    def widget_type(self, label="Choose widget display type", type_limit=4):
+    def widget_type(self, label="Choose widget display type", type_limit=3):
         choice = dialog.select(label, [i[0] for i in widget_types[0:type_limit]])
         if choice == -1:
             return None
@@ -543,13 +531,7 @@ class CPaths:
                 widget_type = self.get_widget_type(result["cpath_type"])
                 if not widget_type:
                     return None
-                if "Stacked" in cpath_type:
-                    cpath_label = "%s | Stacked (%s) | Category" % (
-                        cpath_header,
-                        widget_type,
-                    )
-                else:
-                    cpath_label = "%s | %s" % (cpath_header, widget_type)
+                cpath_label = "%s | %s" % (cpath_header, widget_type)
                 self.update_cpath_in_database(
                     cpath_setting,
                     cpath_path,
@@ -619,22 +601,11 @@ class CPaths:
     def create_and_update_widget(
         self, cpath_setting, cpath_path, cpath_header, add_to_db=True
     ):
-        label_color = self.get_skin_variable("MenuSelectorColor")
         widget_type = self.widget_type()
-        if widget_type[0] == "Category" and dialog.yesno(
-            "Stacked widget",
-            "Make [COLOR {}][B]%s[/B][/COLOR] a stacked widget?".format(label_color)
-            % cpath_header,
-        ):
-            widget_type = self.widget_type(label="Choose stacked widget display type")
-            cpath_type, cpath_label = "%sStacked" % widget_type[
-                1
-            ], "%s | Stacked (%s) | Category" % (cpath_header, widget_type[0])
-        else:
-            cpath_type, cpath_label = widget_type[1], "%s | %s" % (
-                cpath_header,
-                widget_type[0],
-            )
+        cpath_type, cpath_label = widget_type[1], "%s | %s" % (
+            cpath_header,
+            widget_type[0],
+        )
         if add_to_db:
             self.add_cpath_to_database(
                 cpath_setting, cpath_path, cpath_header, cpath_type, cpath_label
@@ -653,7 +624,6 @@ class CPaths:
         window.setProperty("nimbus.clear_path_refresh", "")
         xbmc.sleep(200)
         xbmc.executebuiltin("ReloadSkin()")
-        starting_widgets()
 
     def clean_header(self, header):
         return header.replace("[B]", "").replace("[/B]", "").replace(" >>", "")
@@ -727,59 +697,6 @@ def remake_all_cpaths(silent=False):
         CPaths(item).remake_main_menus()
     if not silent:
         xbmcgui.Dialog().ok("Nimbus", "Menus and widgets remade")
-
-
-def starting_widgets():
-    window = xbmcgui.Window(10000)
-    window.setProperty("nimbus.starting_widgets", "finished")
-    for item in (
-        "movie.widget",
-        "tvshow.widget",
-        "custom1.widget",
-        "custom2.widget",
-        "custom3.widget",
-    ):
-        try:
-            active_cpaths = CPaths(item).fetch_current_cpaths()
-            if not active_cpaths:
-                continue
-            widget_type = item.split(".")[0]
-            widget_type_id = {
-                "movie": 19010,
-                "tvshow": 22010,
-                "custom1": 23010,
-                "custom2": 24010,
-                "custom3": 25010,
-            }
-            base_list_id = widget_type_id.get(widget_type)
-            for count in range(1, 51):
-                active_widget = active_cpaths.get(count, {})
-                if not active_widget:
-                    continue
-                if not "Stacked" in active_widget["cpath_label"]:
-                    continue
-                cpath_setting = active_widget["cpath_setting"]
-                if not cpath_setting:
-                    continue
-                try:
-                    list_id = base_list_id + int(cpath_setting.split(".")[2])
-                except:
-                    continue
-                try:
-                    first_item = files_get_directory(active_widget["cpath_path"])[0]
-                except:
-                    continue
-                if not first_item:
-                    continue
-                cpath_label, cpath_path = first_item["label"], first_item["file"]
-                window.setProperty("nimbus.%s.label" % list_id, cpath_label)
-                window.setProperty("nimbus.%s.path" % list_id, cpath_path)
-        except:
-            pass
-    try:
-        del window
-    except:
-        pass
 
 
 def show_busy_dialog():
