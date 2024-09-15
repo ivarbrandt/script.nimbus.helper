@@ -141,7 +141,7 @@ class SPaths:
             xbmc.executebuiltin("Skin.SetString(SearchInputTraktEncoded, 'none')")
             xbmc.executebuiltin("ReloadSkin()")
             xbmc.sleep(200)
-            xbmc.executebuiltin("SetFocus(803)")
+            xbmc.executebuiltin("SetFocus(9000)")
 
     def search_input(self, search_term=None):
         if search_term is None or not search_term.strip():
