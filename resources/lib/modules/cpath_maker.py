@@ -136,6 +136,9 @@ class CPaths:
         )
         self.dbcon.commit()
 
+    def get_skin_variable(self, variable_name):
+        return xbmc.getInfoLabel(f"$VAR[{variable_name}]")
+
     def fetch_current_cpaths(self):
         results = self.dbcur.execute(
             "SELECT * FROM custom_paths WHERE cpath_setting LIKE %s" % self.cpath_lookup
@@ -180,9 +183,10 @@ class CPaths:
         results = files_get_directory(file)
         hide_busy_dialog()
         list_items = []
+        label_color = self.get_skin_variable("FocusedTextColor")
         if file != default_path:
             listitem = Listitem(
-                "Use [COLOR dodgerblue]%s[/COLOR] as path" % label,
+                "Use [COLOR {}][B]%s[/B][/COLOR] as path".format(label_color) % label,
                 "Set as path",
                 offscreen=True,
             )
