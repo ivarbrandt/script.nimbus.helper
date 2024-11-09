@@ -107,6 +107,13 @@ class MDbListAPI:
         json_data = response.json()
         ratings = json_data.get("ratings", [])
         data = {}
+        score_average = json_data.get("score_average")
+        if score_average is not None:
+            data["mdblistRating"] = str(score_average)
+            data["mdblistImage"] = IMAGE_PATH + "mdblist.png"
+        else:
+            data["mdblistRating"] = ""
+            data["mdblistImage"] = ""
         is_certified_fresh = (
             "true"
             if next(
@@ -155,6 +162,22 @@ class MDbListAPI:
                 else:
                     data["metascore"] = ""
                     data["metascoreImage"] = ""
+            elif source == "trakt":
+                if value is not None:
+                    trakt_value = 10.0 if value == 100 else value / 10.0
+                    data["traktRating"] = str(trakt_value)
+                    data["traktImage"] = IMAGE_PATH + "trakt.png"
+                else:
+                    data["traktRating"] = ""
+                    data["traktImage"] = ""
+            elif source == "letterboxd":
+                if value is not None:
+                    letterboxd_value = float(value) * 2
+                    data["letterboxdRating"] = str(letterboxd_value)
+                    data["letterboxdImage"] = IMAGE_PATH + "letterboxd.png"
+                else:
+                    data["letterboxdRating"] = ""
+                    data["letterboxdImage"] = ""
             elif source == "tomatoes":
                 if value is not None:
                     data["tomatoMeter"] = str(value)
