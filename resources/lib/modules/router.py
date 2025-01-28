@@ -61,14 +61,14 @@ def routing():
         return SPaths().open_search_window()
 
     if mode == "set_api_key":
-        from modules.MDbList import set_api_key
+        from modules.custom_actions import set_api_key
 
         return set_api_key()
 
     if mode == "delete_all_ratings":
-        from modules.MDbList import MDbListAPI
+        from modules.databases.ratings import RatingsDatabase
 
-        return MDbListAPI().delete_all_ratings()
+        return RatingsDatabase().delete_all_ratings()
 
     if mode == "set_image":
         from modules.custom_actions import set_image
@@ -86,7 +86,7 @@ def routing():
         return modify_keymap()
 
     if mode == "play_trailer":
-        from modules.MDbList import play_trailer
+        from modules.custom_actions import play_trailer
 
         return play_trailer()
 
@@ -110,11 +110,6 @@ def routing():
 
         return set_autoendplaybackdelay()
 
-    if mode == "check_ratings":
-        from modules.custom_actions import check_ratings
-
-        return check_ratings()
-
     if mode == "clear_image_cache":
         from modules.helper import clear_image_cache
 
@@ -136,6 +131,6 @@ def routing():
         return show_changelog()
 
     if mode == "check_api_key_on_load":
-        from modules.MDbList import check_api_key_on_load
+        from modules.custom_actions import check_api_key_on_load
 
         return check_api_key_on_load()

@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from threading import Timer
 import sys, re
+import requests
 
 KEYMAP_LOCATION = "special://userdata/keymaps/"
 POSSIBLE_KEYMAP_NAMES = ["gen.xml", "keyboard.xml", "keymap.xml"]
@@ -81,6 +82,95 @@ def set_image():
     if image_file:
         xbmc.executebuiltin(f"Skin.SetString(LastImagePath,{image_file})")
         xbmc.executebuiltin(f"Skin.SetString(NimbusCustomBackground,{image_file})")
+
+
+def play_trailer():
+    # if not xbmc.getCondVisibility(
+    #     "String.IsEmpty(Window(Home).Property(nimbus.trailer_ready))"
+    # ):
+    is_episode = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,episode)")
+    is_season = xbmc.getCondVisibility("String.IsEqual(ListItem.DBType,season)")
+    if xbmc.getCondVisibility("Control.IsVisible(500) | Control.IsVisible(501)"):
+        xbmc.executebuiltin(
+            "Notification(Trailer Playback, Trailer playback is not available in this view, 3000)"
+        )
+    elif not (is_episode or is_season):
+        trailer_source = xbmc.getInfoLabel("Skin.String(TrailerSource)")
+        play_url = None
+        if trailer_source == "0":
+            play_url = xbmc.getInfoLabel("ListItem.Trailer")
+        elif trailer_source == "1":
+            play_url = xbmc.getInfoLabel("Skin.String(TrailerPlaybackURL)")
+        if play_url:
+            xbmc.executebuiltin("Skin.SetString(TrailerPlaying, true)")
+            if xbmc.getCondVisibility("Control.IsVisible(50) | Control.IsVisible(51)"):
+                xbmc.executebuiltin(f"PlayMedia({play_url},0,noresume)")
+            else:
+                xbmc.executebuiltin(f"PlayMedia({play_url},1,noresume)")
+
+
+def check_api_key(api_key):
+    api_url = "https://mdblist.com/api/"
+    params = {
+        "apikey": api_key,
+        "i": "tt0111161",
+    }
+    try:
+        response = requests.get(api_url, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        return ("valid", "ratings" in data and len(data["ratings"]) > 0)
+    except requests.RequestException:
+        return ("error", None)
+
+
+def validate_api_key(api_key, silent=True):
+    if not api_key:
+        xbmc.executebuiltin("Skin.Reset(valid_api_key)")
+        return
+    xbmc.executebuiltin("Skin.SetString(checking_api_key,true)")
+    try:
+        status, is_valid = check_api_key(api_key)
+        if status == "valid" and is_valid:
+            xbmc.executebuiltin("Skin.SetString(valid_api_key,true)")
+            if not silent:
+                xbmcgui.Dialog().notification(
+                    "Success",
+                    "Features activated",
+                    xbmcgui.NOTIFICATION_INFO,
+                    3000,
+                )
+        elif status == "valid" and not is_valid:
+            xbmc.executebuiltin("Skin.Reset(valid_api_key)")
+        else:
+            if not silent:
+                xbmcgui.Dialog().notification(
+                    "Connection Error",
+                    "Unable to reach MDbList",
+                    xbmcgui.NOTIFICATION_INFO,
+                    3000,
+                )
+    finally:
+        xbmc.executebuiltin("Skin.Reset(checking_api_key)")
+
+
+def set_api_key():
+    current_key = xbmc.getInfoLabel("Skin.String(mdblist_api_key)")
+    keyboard = xbmc.Keyboard(current_key, "Enter MDbList API Key")
+    keyboard.doModal()
+    if keyboard.isConfirmed():
+        new_key = keyboard.getText()
+        if not new_key:
+            xbmc.executebuiltin("Skin.Reset(mdblist_api_key)")
+            xbmc.executebuiltin("Skin.Reset(valid_api_key)")
+        else:
+            xbmc.executebuiltin(f'Skin.SetString(mdblist_api_key,"{new_key}")')
+            validate_api_key(new_key, silent=False)
+
+
+def check_api_key_on_load():
+    api_key = xbmc.getInfoLabel("Skin.String(mdblist_api_key)")
+    validate_api_key(api_key, silent=True)
 
 
 def fix_black_screen():
