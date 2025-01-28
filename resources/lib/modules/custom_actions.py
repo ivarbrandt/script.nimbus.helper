@@ -22,18 +22,18 @@ def show_changelog():
         changelog_text = changelog_text.decode("utf-8")
     changelog_text = re.sub(
         r"\[COLOR \w+\](Version \d+\.\d+\.\d+)\[/COLOR\]",
-        f"[COLOR $VAR[MenuSelectorColor]]\\1[/COLOR]",
+        r"[COLOR $VAR[MenuSelectorColor]]\1[/COLOR]",
         changelog_text,
     )
     changelog_text = re.sub(
         r"\[COLOR \w+\](Version \$INFO\[.*?\])\[/COLOR\]",
-        f"[COLOR $VAR[MenuSelectorColor]]\\1[/COLOR]",
+        r"[COLOR $VAR[MenuSelectorColor]]\1[/COLOR]",
         changelog_text,
     )
-    helper_pattern = r"(Nimbus Helper: Latest: v([\d.]+)) \| Installed: v.*"
+    helper_pattern = r"Nimbus Helper: Latest: v([\d.]+) \[B\]\|\[/B\] Installed: v.*"
     helper_match = re.search(helper_pattern, changelog_text)
     if helper_match:
-        latest_helper_version = helper_match.group(2)
+        latest_helper_version = helper_match.group(1)
         installed_part = f"Installed: v{helper_version}"
         if helper_version != latest_helper_version:
             installed_part = f"[COLOR red][B]{installed_part}[/B][/COLOR]"
@@ -46,7 +46,7 @@ def show_changelog():
             )
         else:
             update_message = "\n\n[COLOR limegreen][B]Nimbus Helper up to date. No updates needed at this time.[/B][/COLOR]"
-        new_helper_info = f"{helper_match.group(1)} | {installed_part}{update_message}"
+        new_helper_info = f"Nimbus Helper: Latest: v{latest_helper_version} [B]|[/B] {installed_part}{update_message}"
         changelog_text = re.sub(
             helper_pattern, new_helper_info, changelog_text, count=1
         )
