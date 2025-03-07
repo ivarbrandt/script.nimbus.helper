@@ -32,7 +32,7 @@ class RatingsMonitor:
         """Process the current media item."""
         meta = self._get_current_item_meta()
         if not meta:
-            self._clear_ratings_properties()
+            # self._clear_ratings_properties()
             return
 
         media_id = meta.get("id")
@@ -153,7 +153,11 @@ class RatingsMonitor:
     def _get_current_item_meta(self) -> Optional[Dict[str, Any]]:
         """Get metadata for the current item."""
         dbtype = self.get_infolabel("ListItem.DBTYPE").lower()
-        if not dbtype in ["movie", "tvshow", "episode", "season"]:
+        path = self.get_infolabel("ListItem.Path")
+        if not (
+            dbtype in ["movie", "tvshow", "episode", "season"]
+            or path.startswith("plugin://plugin.video.mediafusion")
+        ):
             return None
 
         # Try direct ID lookup first
