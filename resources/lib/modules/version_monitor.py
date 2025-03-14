@@ -26,12 +26,9 @@ def check_for_update(skin_id):
         return
     from modules.cpath_maker import remake_all_cpaths
 
-    # from modules.search_utils import remake_all_spaths
-
     set_installed_version(skin_id, installed_version)
     sleep(1000)
     remake_all_cpaths(silent=True)
-    # remake_all_spaths(silent=True)
 
 
 def set_installed_version(skin_id, installed_version):

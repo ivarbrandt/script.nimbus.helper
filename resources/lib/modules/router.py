@@ -40,6 +40,11 @@ def routing():
 
         return remake_all_cpaths()
 
+    if mode == "refresh_search_history":
+        from modules.search_utils import SPaths
+
+        return SPaths().refresh_search_history()
+
     if mode == "search_input":
         from modules.search_utils import SPaths
 
@@ -59,6 +64,11 @@ def routing():
         from modules.search_utils import SPaths
 
         return SPaths().open_search_window()
+    
+    if mode == "toggle_search_provider":
+        from modules.search_utils import SPaths
+
+        return SPaths().toggle_search_provider()
 
     if mode == "set_api_key":
         from modules.custom_actions import set_api_key
